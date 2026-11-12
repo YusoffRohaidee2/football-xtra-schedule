@@ -97,8 +97,12 @@
       pointer-events: none;
     }
 
-    .pulse-glow {
-      box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
@@ -124,16 +128,27 @@
         </div>
       </div>
 
-      <!-- Live Search Bar -->
-      <div class="w-full md:w-80 relative">
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Search teams, leagues, channels..." 
-          class="w-full bg-slate-900 text-slate-100 placeholder-slate-400 px-4 py-2.5 pl-10 rounded-xl border border-slate-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm transition"
-          onkeyup="applyFilters()"
+      <!-- Live Search & Quick Status -->
+      <div class="w-full md:w-96 flex items-center gap-2">
+        <div class="relative flex-1">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search teams, leagues, channels..." 
+            class="w-full bg-slate-900 text-slate-100 placeholder-slate-400 px-4 py-2.5 pl-10 rounded-xl border border-slate-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm transition"
+            onkeyup="applyFilters()"
+          >
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+        </div>
+        <button 
+          id="hotOnlyBtn"
+          onclick="toggleHotFilter()"
+          title="Filter Hot Matches Only"
+          class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-red-500/60 hover:text-red-400 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 whitespace-nowrap"
         >
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+          <i class="fa-solid fa-fire text-red-500"></i>
+          <span class="hidden sm:inline">HOT</span>
+        </button>
       </div>
 
     </div>
@@ -188,6 +203,46 @@
       </div>
     </section>
 
+    <!-- Stats & Quick Controls Bar -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400">Total Fixtures</p>
+          <p id="statTotalMatches" class="text-lg font-black font-display text-white">0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400">Competitions</p>
+          <p id="statTotalLeagues" class="text-lg font-black font-display text-white">0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+          <i class="fa-solid fa-fire"></i>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400">Big Matches</p>
+          <p id="statHotMatches" class="text-lg font-black font-display text-white">0</p>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400">Saved Reminders</p>
+          <p id="statSavedMatches" class="text-lg font-black font-display text-white">0</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Filters Section -->
     <div class="space-y-3">
       <!-- Date Quick Filter Pills -->
@@ -213,10 +268,19 @@
     <div id="noResults" class="hidden text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
       <i class="fa-solid fa-circle-xmark text-4xl text-slate-600 mb-3"></i>
       <p class="text-lg font-bold text-slate-300">No matches found</p>
-      <p class="text-sm text-slate-500">Try adjusting your search criteria or date filter.</p>
+      <p class="text-sm text-slate-500 mb-4">Try adjusting your search criteria, league, or date filter.</p>
+      <button onclick="resetAllFilters()" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-black uppercase tracking-wider hover:bg-cyan-400 transition">
+        Reset All Filters
+      </button>
     </div>
 
   </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 border border-cyan-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2.5">
+    <i class="fa-solid fa-circle-check text-cyan-400 text-sm"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
 
   <!-- Footer -->
   <footer class="max-w-7xl mx-auto px-4 mt-12 text-center text-xs text-slate-500 space-y-1">
@@ -226,141 +290,244 @@
 
   <!-- Application Logic -->
   <script>
-    // Full Schedule Data Array with UTC Timestamp recalculations
+    // Updated Schedule Data Array (Old Schedules Removed)
     const rawMatches = [
-      // Bundesliga
-      { league: "Bundesliga", date: "Sat, 24 Oct 2026", time: "21:30", iso: "2026-10-24T21:30:00+08:00", teams: "RB Leipzig vs Elversberg", broadcasters: ["DAZN4 Portugal"], hot: false },
-      { league: "Bundesliga", date: "Sun, 25 Oct 2026", time: "00:30", iso: "2026-10-25T00:30:00+08:00", teams: "Borussia Dortmund vs Eintracht Frankfurt", broadcasters: ["USA Network", "DAZN4 Portugal"], hot: false },
-      { league: "Bundesliga", date: "Mon, 26 Oct 2026", time: "00:30", iso: "2026-10-26T00:30:00+08:00", teams: "Freiburg vs Bayern München", broadcasters: ["DAZN1 Portugal"], hot: true },
-
-      // Bundesliga 2
-      { league: "Bundesliga 2", date: "Sat, 24 Oct 2026", time: "19:00", iso: "2026-10-24T19:00:00+08:00", teams: "Hertha BSC vs Arminia Bielefeld", broadcasters: ["DAZN2 Portugal"], hot: false },
-
-      // Ligue 1
-      { league: "Ligue 1", date: "Sun, 25 Oct 2026", time: "02:45", iso: "2026-10-25T02:45:00+08:00", teams: "Lens vs Paris", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "Ligue 1", date: "Sun, 25 Oct 2026", time: "22:00", iso: "2026-10-25T22:00:00+08:00", teams: "Monaco vs Lille", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "Ligue 1", date: "Mon, 26 Oct 2026", time: "00:15", iso: "2026-10-26T00:15:00+08:00", teams: "Rennes vs Strasbourg", broadcasters: ["beIN Sports Arabia 2", "beIN Sports XTRA en Español"], hot: false },
-      { league: "Ligue 1", date: "Mon, 26 Oct 2026", time: "00:15", iso: "2026-10-26T00:15:00+08:00", teams: "Olympique Marseille vs Le Havre", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "Ligue 1", date: "Mon, 26 Oct 2026", time: "00:15", iso: "2026-10-26T00:15:00+08:00", teams: "Angers SCO vs Lorient", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "Ligue 1", date: "Tue, 27 Oct 2026", time: "03:30", iso: "2026-10-27T03:30:00+08:00", teams: "PSG vs Olympique Lyonnais", broadcasters: ["beIN Sports Arabia 2"], hot: true },
-
-      // Ligue 2
-      { league: "Ligue 2", date: "Sun, 25 Oct 2026", time: "02:45", iso: "2026-10-25T02:45:00+08:00", teams: "Saint-Étienne vs Nantes", broadcasters: ["beIN Sports Arabia 4", "beIN Sports XTRA", "beIN Sports XTRA en Español"], hot: false },
-      { league: "Ligue 2", date: "Tue, 27 Oct 2026", time: "03:45", iso: "2026-10-27T03:45:00+08:00", teams: "Montpellier vs Red Star", broadcasters: ["beIN Sports Arabia 6"], hot: false },
+      // Segunda Division
+      { id: "sd-1", league: "Segunda Division", date: "Sat, 14 Nov 2026", time: "03:30", iso: "2026-11-14T03:30:00+08:00", teams: "Leganés vs Burgos", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "sd-2", league: "Segunda Division", date: "Sat, 14 Nov 2026", time: "21:00", iso: "2026-11-14T21:00:00+08:00", teams: "Real Valladolid vs CD Castellón", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "sd-3", league: "Segunda Division", date: "Sun, 15 Nov 2026", time: "04:00", iso: "2026-11-15T04:00:00+08:00", teams: "Real Oviedo vs Girona", broadcasters: ["beIN Sports 3 Malaysia"], hot: true },
 
       // Ekstraklasa
-      { league: "Ekstraklasa", date: "Sat, 24 Oct 2026", time: "23:30", iso: "2026-10-24T23:30:00+08:00", teams: "Pogoń Szczecin vs Radomiak Radom", broadcasters: ["beIN Sports XTRA", "beIN Sports XTRA en Español"], hot: false },
-      { league: "Ekstraklasa", date: "Sun, 25 Oct 2026", time: "21:45", iso: "2026-10-25T21:45:00+08:00", teams: "Jagiellonia Białystok vs Wisła Płock", broadcasters: ["beIN Sports XTRA", "beIN Sports XTRA en Español"], hot: false },
-      { league: "Ekstraklasa", date: "Mon, 26 Oct 2026", time: "00:30", iso: "2026-10-26T00:30:00+08:00", teams: "Legia Warszawa vs Lech Poznań", broadcasters: ["beIN Sports XTRA"], hot: false },
+      { id: "eks-1", league: "Ekstraklasa", date: "Sat, 21 Nov 2026", time: "01:00", iso: "2026-11-21T01:00:00+08:00", teams: "Piast Gliwice vs Korona Kielce", broadcasters: ["beIN SPORTS USA"], hot: false },
 
-      // Eredivisie
-      { league: "Eredivisie", date: "Sun, 25 Oct 2026", time: "21:30", iso: "2026-10-25T21:30:00+08:00", teams: "PSV vs Feyenoord", broadcasters: ["DAZN4 Portugal"], hot: true },
-      { league: "Eredivisie", date: "Sun, 25 Oct 2026", time: "23:45", iso: "2026-10-25T23:45:00+08:00", teams: "Sparta Rotterdam vs Ajax", broadcasters: ["DAZN4 Portugal"], hot: false },
+      // Taça de Portugal
+      { id: "tdp-1", league: "Taça de Portugal", date: "Sat, 21 Nov 2026", time: "04:45", iso: "2026-11-21T04:45:00+08:00", teams: "Porto vs Paredes", broadcasters: ["beIN SPORTS USA"], hot: true },
 
-      // Super Lig
-      { league: "Super Lig", date: "Tue, 27 Oct 2026", time: "00:00", iso: "2026-10-27T00:00:00+08:00", teams: "Rizespor vs Trabzonspor", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "Super Lig", date: "Tue, 27 Oct 2026", time: "00:00", iso: "2026-10-27T00:00:00+08:00", teams: "Beşiktaş vs İstanbul Başakşehir", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "Super Lig", date: "Tue, 27 Oct 2026", time: "02:30", iso: "2026-10-27T02:30:00+08:00", teams: "Galatasaray vs Fenerbahçe", broadcasters: ["beIN Sports Arabia 4"], hot: true },
+      // Women’s Super League
+      { id: "wsl-1", league: "Women’s Super League", date: "Sat, 14 Nov 2026", time: "20:45", iso: "2026-11-14T20:45:00+08:00", teams: "Manchester United vs Crystal Palace", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
+      { id: "wsl-2", league: "Women’s Super League", date: "Sat, 14 Nov 2026", time: "23:00", iso: "2026-11-14T23:00:00+08:00", teams: "Tottenham Hotspur vs Everton", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
+      { id: "wsl-3", league: "Women’s Super League", date: "Sun, 15 Nov 2026", time: "01:15", iso: "2026-11-15T01:15:00+08:00", teams: "Brighton & Hove Albion vs Liverpool", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: true },
+      { id: "wsl-4", league: "Women’s Super League", date: "Sun, 15 Nov 2026", time: "22:00", iso: "2026-11-15T22:00:00+08:00", teams: "Aston Villa vs Birmingham City", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
+      { id: "wsl-5", league: "Women’s Super League", date: "Mon, 16 Nov 2026", time: "00:30", iso: "2026-11-16T00:30:00+08:00", teams: "Arsenal vs London City Lionesses", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: true },
+      { id: "wsl-6", league: "Women’s Super League", date: "Sat, 21 Nov 2026", time: "20:45", iso: "2026-11-21T20:45:00+08:00", teams: "Liverpool vs Chelsea FC", broadcasters: ["Sky Sports Premier League"], hot: true },
 
-      // Segunda Division
-      { league: "Segunda Division", date: "Sun, 25 Oct 2026", time: "03:00", iso: "2026-10-25T03:00:00+08:00", teams: "Almería vs Real Oviedo", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "Segunda Division", date: "Mon, 26 Oct 2026", time: "01:30", iso: "2026-10-26T01:30:00+08:00", teams: "CD Castellón vs Sporting Gijón", broadcasters: ["beIN Sports Arabia 6"], hot: false },
+      // EFL League Two
+      { id: "efl2-1", league: "EFL League Two", date: "Sat, 14 Nov 2026", time: "20:30", iso: "2026-11-14T20:30:00+08:00", teams: "Exeter City vs Cheltenham Town", broadcasters: ["beIN Sports Arabia 2"], hot: false },
+      { id: "efl2-2", league: "EFL League Two", date: "Sun, 15 Nov 2026", time: "01:30", iso: "2026-11-15T01:30:00+08:00", teams: "Fleetwood Town vs Tranmere Rovers", broadcasters: ["beIN Sports Arabia 5", "beIN Sports Arabia 7"], hot: false },
 
-      // EFL Championship
-      { league: "EFL Championship", date: "Sat, 24 Oct 2026", time: "19:30", iso: "2026-10-24T19:30:00+08:00", teams: "Charlton Athletic vs Norwich City", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "EFL Championship", date: "Sat, 24 Oct 2026", time: "22:00", iso: "2026-10-24T22:00:00+08:00", teams: "Preston North End vs West Bromwich Albion", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-
-      // EFL Cup (League Cup)
-      { league: "EFL Cup (League Cup)", date: "Wed, 28 Oct 2026", time: "03:45", iso: "2026-10-28T03:45:00+08:00", teams: "Bradford City vs Peterborough United", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "EFL Cup (League Cup)", date: "Wed, 28 Oct 2026", time: "04:00", iso: "2026-10-28T04:00:00+08:00", teams: "Fleetwood Town vs Arsenal", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "EFL Cup (League Cup)", date: "Thu, 29 Oct 2026", time: "03:30", iso: "2026-10-29T03:30:00+08:00", teams: "Manchester City vs Brighton & Hove Albion", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "EFL Cup (League Cup)", date: "Thu, 29 Oct 2026", time: "03:45", iso: "2026-10-29T03:45:00+08:00", teams: "Sunderland vs Brentford", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "EFL Cup (League Cup)", date: "Thu, 29 Oct 2026", time: "03:45", iso: "2026-10-29T03:45:00+08:00", teams: "AFC Bournemouth vs Aston Villa", broadcasters: ["beIN Sports Arabia 6"], hot: false },
-      { league: "EFL Cup (League Cup)", date: "Thu, 29 Oct 2026", time: "04:00", iso: "2026-10-29T04:00:00+08:00", teams: "Liverpool vs Chelsea", broadcasters: ["beIN Sports Arabia 1"], hot: true },
-
-      // A-League
-      { league: "A-League", date: "Sat, 24 Oct 2026", time: "12:00", iso: "2026-10-24T12:00:00+08:00", teams: "Newcastle Jets vs Macarthur", broadcasters: ["SPOTV Asia"], hot: false },
-      { league: "A-League", date: "Sat, 24 Oct 2026", time: "14:00", iso: "2026-10-24T14:00:00+08:00", teams: "Western Sydney Wanderers vs Auckland", broadcasters: ["SPOTV Asia"], hot: false },
-      { league: "A-League", date: "Sat, 24 Oct 2026", time: "16:40", iso: "2026-10-24T16:40:00+08:00", teams: "Melbourne Victory vs Melbourne City", broadcasters: ["SPOTV Asia"], hot: true },
-      { league: "A-League", date: "Sun, 25 Oct 2026", time: "12:00", iso: "2026-10-25T12:00:00+08:00", teams: "Sydney FC vs Adelaide United", broadcasters: ["SPOTV Asia"], hot: false },
-
-      // Major League Soccer (MLS)
-      { league: "Major League Soccer (MLS)", date: "Mon, 02 Nov 2026", time: "10:45", iso: "2026-11-02T10:45:00+08:00", teams: "Portland Timbers vs Houston Dynamo", broadcasters: ["Fox Sports 1 USA"], hot: false },
+      // Africa Cup of Nations Qualification
+      { id: "afcon-1", league: "Africa Cup of Nations Qualification", date: "Thu, 12 Nov 2026", time: "23:00", iso: "2026-11-12T23:00:00+08:00", teams: "Ghana vs Somalia", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-2", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Congo DR vs Sierra Leone", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 3", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-3", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Equatorial Guinea vs Zimbabwe", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-4", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Guinea vs Eritrea", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
+      { id: "afcon-5", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Côte d’Ivoire vs Gambia", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 5"], hot: true },
+      { id: "afcon-6", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Cameroon vs Namibia", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 6", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-7", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Senegal vs Sudan", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-8", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Comoros vs Congo", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 3"], hot: false },
+      { id: "afcon-9", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Zambia vs Burundi", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-10", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Mozambique vs Ethiopia", broadcasters: ["beIN Sports Arabia 1", "beIN SPORTS XTRA"], hot: false },
+      { id: "afcon-11", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Tunisia vs Libya", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 1", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-12", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "South Africa vs Kenya", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 4"], hot: false },
+      { id: "afcon-13", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Nigeria vs Tanzania", broadcasters: ["beIN Sports Arabia 3", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-14", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Burkina Faso vs Mauritania", broadcasters: ["beIN Sports Arabia 2"], hot: false },
+      { id: "afcon-15", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Cape Verde Islands vs Liberia", broadcasters: ["beIN Sports Arabia 5"], hot: false },
+      { id: "afcon-16", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "03:00", iso: "2026-11-14T03:00:00+08:00", teams: "Egypt vs Malawi", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-17", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "03:00", iso: "2026-11-14T03:00:00+08:00", teams: "Mali vs Rwanda", broadcasters: ["beIN Sports Arabia 9", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-18", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "04:00", iso: "2026-11-14T04:00:00+08:00", teams: "Morocco vs Niger", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 1"], hot: true },
+      { id: "afcon-19", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "00:00", iso: "2026-11-15T00:00:00+08:00", teams: "Uganda vs Botswana", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-20", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Algeria vs Togo", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "afcon-21", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Angola vs South Sudan", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-22", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Zimbabwe vs Equatorial Guinea", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-23", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Namibia vs Cameroon", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-24", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Sudan vs Senegal", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-25", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "23:00", iso: "2026-11-16T23:00:00+08:00", teams: "Somalia vs Ghana", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-26", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Eritrea vs Guinea", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "afcon-27", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Central African Republic vs Benin", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-28", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Tanzania vs Nigeria", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-29", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "South Sudan vs Angola", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-30", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Malawi vs Egypt", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
+      { id: "afcon-31", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Ethiopia vs Mozambique", broadcasters: ["beIN SPORTS XTRA"], hot: false },
+      { id: "afcon-32", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Gambia vs Côte d’Ivoire", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-33", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Sierra Leone vs Congo DR", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-34", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Libya vs Tunisia", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-35", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Togo vs Algeria", broadcasters: ["beIN SPORTS XTRA"], hot: false },
+      { id: "afcon-36", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Congo vs Comoros", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-37", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Liberia vs Cape Verde Islands", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
+      { id: "afcon-38", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Mauritania vs Burkina Faso", broadcasters: ["beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-39", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "04:00", iso: "2026-11-18T04:00:00+08:00", teams: "Niger vs Morocco", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
 
       // AFC Champions League Elite
-      { league: "AFC Champions League Elite", date: "Mon, 26 Oct 2026", time: "21:45", iso: "2026-10-26T21:45:00+08:00", teams: "Neftchi vs Al Ittihad", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "00:00", iso: "2026-10-27T00:00:00+08:00", teams: "Al-Ahli vs Al Gharafa", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "00:00", iso: "2026-10-27T00:00:00+08:00", teams: "Al Ain vs Tractor Sazi", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "02:15", iso: "2026-10-27T02:15:00+08:00", teams: "Al Quadisiya vs Al Sadd", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "02:15", iso: "2026-10-27T02:15:00+08:00", teams: "Al Nassr vs Al Wasl", broadcasters: ["beIN Sports Arabia 2"], hot: true },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "02:15", iso: "2026-10-27T02:15:00+08:00", teams: "Al Quwa Al Jawiya vs Pakhtakor", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "18:00", iso: "2026-10-27T18:00:00+08:00", teams: "Shanghai Port vs Cong An Hanoi", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "18:00", iso: "2026-10-27T18:00:00+08:00", teams: "Johor Darul Ta’zim vs Port FC", broadcasters: ["beIN Sports Arabia 2"], hot: true },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "18:00", iso: "2026-10-27T18:00:00+08:00", teams: "Daejeon Citizen vs Vissel Kobe", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "18:00", iso: "2026-10-27T18:00:00+08:00", teams: "Kyoto Sanga vs Newcastle Jets", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "20:15", iso: "2026-10-27T20:15:00+08:00", teams: "Beijing Guoan vs Jeonbuk Motors", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Elite", date: "Tue, 27 Oct 2026", time: "20:15", iso: "2026-10-27T20:15:00+08:00", teams: "Ratchaburi vs Kashiwa Reysol", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Elite", date: "Wed, 28 Oct 2026", time: "00:00", iso: "2026-10-28T00:00:00+08:00", teams: "Shabab Al Ahli vs Esteghlal", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "AFC Champions League Elite", date: "Wed, 28 Oct 2026", time: "02:15", iso: "2026-10-28T02:15:00+08:00", teams: "Al Shamal vs Al Hilal", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Elite", date: "Wed, 28 Oct 2026", time: "18:00", iso: "2026-10-28T18:00:00+08:00", teams: "Gamba Osaka vs Buriram United", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Elite", date: "Wed, 28 Oct 2026", time: "18:00", iso: "2026-10-28T18:00:00+08:00", teams: "Kashima Antlers vs Pohang Steelers", broadcasters: ["beIN Sports Arabia 3"], hot: false },
+      { id: "acle-1", league: "AFC Champions League Elite", date: "Tue, 24 Nov 2026", time: "00:00", iso: "2026-11-24T00:00:00+08:00", teams: "Al Ain vs Esteghlal", broadcasters: ["Shabake 3"], hot: true },
+      { id: "acle-2", league: "AFC Champions League Elite", date: "Tue, 24 Nov 2026", time: "00:00", iso: "2026-11-24T00:00:00+08:00", teams: "Tractor Sazi vs Al Wasl", broadcasters: ["IRIB Varzesh"], hot: false },
 
       // AFC Champions League Two
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "00:00", iso: "2026-10-28T00:00:00+08:00", teams: "Al Seeb vs East Bengal II", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "02:15", iso: "2026-10-28T02:15:00+08:00", teams: "Al Shorta vs Al Hussein", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "20:15", iso: "2026-10-28T20:15:00+08:00", teams: "Persib vs Melbourne Victory", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "20:15", iso: "2026-10-28T20:15:00+08:00", teams: "Viettel vs Seoul", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "21:45", iso: "2026-10-28T21:45:00+08:00", teams: "Nasaf vs Al Kuwait", broadcasters: ["beIN Sports Arabia 3"], hot: false },
-      { league: "AFC Champions League Two", date: "Wed, 28 Oct 2026", time: "21:45", iso: "2026-10-28T21:45:00+08:00", teams: "Gol Gohar vs Arkadag", broadcasters: ["beIN Sports Arabia 4"], hot: false },
-      { league: "AFC Champions League Two", date: "Thu, 29 Oct 2026", time: "00:00", iso: "2026-10-29T00:00:00+08:00", teams: "Al Nahda vs Al Rayyan", broadcasters: ["beIN Sports Arabia 1"], hot: false },
-      { league: "AFC Champions League Two", date: "Thu, 29 Oct 2026", time: "00:00", iso: "2026-10-29T00:00:00+08:00", teams: "Al Jazira vs Muharraq", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Two", date: "Thu, 29 Oct 2026", time: "02:15", iso: "2026-10-29T02:15:00+08:00", teams: "Al Faisaly vs Al Taawon", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { league: "AFC Champions League Two", date: "Thu, 29 Oct 2026", time: "02:15", iso: "2026-10-29T02:15:00+08:00", teams: "Khalidiya vs Al Wahda", broadcasters: ["beIN Sports Arabia 3"], hot: false },
+      { id: "acl2-1", league: "AFC Champions League Two", date: "Thu, 26 Nov 2026", time: "00:00", iso: "2026-11-26T00:00:00+08:00", teams: "Al Jazira vs Gol Gohar", broadcasters: ["IRIB Varzesh"], hot: false },
+      { id: "acl2-2", league: "AFC Champions League Two", date: "Wed, 9 Dec 2026", time: "21:45", iso: "2026-12-09T21:45:00+08:00", teams: "Gol Gohar vs Muharraq", broadcasters: ["IRIB Varzesh"], hot: false },
 
-      // FIFA U-17 Women’s World Cup
-      { league: "FIFA U-17 Women’s World Cup", date: "Sat, 24 Oct 2026", time: "23:00", iso: "2026-10-24T23:00:00+08:00", teams: "Ghana U17 vs Canada U17", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { league: "FIFA U-17 Women’s World Cup", date: "Sat, 24 Oct 2026", time: "23:00", iso: "2026-10-24T23:00:00+08:00", teams: "Brazil U17 vs Norway U17", broadcasters: ["beIN Sports Arabia 6"], hot: false },
-      { league: "FIFA U-17 Women’s World Cup", date: "Sun, 25 Oct 2026", time: "02:00", iso: "2026-10-25T02:00:00+08:00", teams: "Zambia U17 vs France U17", broadcasters: ["beIN Sports Arabia 6"], hot: false },
+      // Jordan League
+      { id: "jl-1", league: "Jordan League", date: "Thu, 26 Nov 2026", time: "23:00", iso: "2026-11-26T23:00:00+08:00", teams: "Al Buqa’a vs Al Jazeera", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-2", league: "Jordan League", date: "Fri, 27 Nov 2026", time: "22:00", iso: "2026-11-27T22:00:00+08:00", teams: "Shabab Al Ordon vs Al Salt", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-3", league: "Jordan League", date: "Sat, 28 Nov 2026", time: "00:30", iso: "2026-11-28T00:30:00+08:00", teams: "Al Wihdat vs Doqarah", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-4", league: "Jordan League", date: "Sat, 28 Nov 2026", time: "22:00", iso: "2026-11-28T22:00:00+08:00", teams: "Al Arabi vs Al Faisaly", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-5", league: "Jordan League", date: "Sun, 29 Nov 2026", time: "00:30", iso: "2026-11-29T00:30:00+08:00", teams: "Al Ramtha vs Al Hussein", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-6", league: "Jordan League", date: "Wed, 2 Dec 2026", time: "23:00", iso: "2026-12-02T23:00:00+08:00", teams: "Doqarah vs Al Buqa’a", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-7", league: "Jordan League", date: "Thu, 3 Dec 2026", time: "21:00", iso: "2026-12-03T21:00:00+08:00", teams: "Al Salt vs Al Arabi", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-8", league: "Jordan League", date: "Fri, 4 Dec 2026", time: "00:00", iso: "2026-12-04T00:00:00+08:00", teams: "Al Jazeera vs Al Hussein", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-9", league: "Jordan League", date: "Fri, 4 Dec 2026", time: "21:00", iso: "2026-12-04T21:00:00+08:00", teams: "Al Ramtha vs Shabab Al Ordon", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-10", league: "Jordan League", date: "Sat, 5 Dec 2026", time: "00:00", iso: "2026-12-05T00:00:00+08:00", teams: "Al Faisaly vs Al Wihdat", broadcasters: ["Jordan TV Sport"], hot: true },
+      { id: "jl-11", league: "Jordan League", date: "Fri, 11 Dec 2026", time: "21:00", iso: "2026-12-11T21:00:00+08:00", teams: "Al Buqa’a vs Al Hussein", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-12", league: "Jordan League", date: "Sat, 12 Dec 2026", time: "00:00", iso: "2026-12-12T00:00:00+08:00", teams: "Al Wihdat vs Al Salt", broadcasters: ["Jordan TV Sport"], hot: false },
 
       // International Friendly
-      { league: "International Friendly", date: "Sat, 14 Nov 2026", time: "02:00", iso: "2026-11-14T02:00:00+08:00", teams: "Jordan vs Indonesia", broadcasters: ["Jordan TV Sport"], hot: true },
-      { league: "International Friendly", date: "Wed, 18 Nov 2026", time: "02:00", iso: "2026-11-18T02:00:00+08:00", teams: "Jordan vs Australia", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "if-1", league: "International Friendly", date: "Sat, 14 Nov 2026", time: "16:00", iso: "2026-11-14T16:00:00+08:00", teams: "Thailand U23 vs Singapore U23", broadcasters: ["True Premier Football HD 4"], hot: false },
+      { id: "if-2", league: "International Friendly", date: "Tue, 17 Nov 2026", time: "02:00", iso: "2026-11-17T02:00:00+08:00", teams: "Andorra vs Azerbaijan", broadcasters: ["beIN Sports Arabia 9"], hot: false },
+      { id: "if-3", league: "International Friendly", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Jordan vs Australia", broadcasters: ["Jordan TV Sport"], hot: true },
 
       // CONCACAF Nations League
-      { league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "09:00", iso: "2026-11-17T09:00:00+08:00", teams: "Canada vs Guatemala", broadcasters: ["Fox Sports 1 USA"], hot: false },
-      { league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "09:00", iso: "2026-11-18T09:00:00+08:00", teams: "El Salvador vs Saint Martin", broadcasters: ["Fox Sports 1 USA"], hot: false },
-      { league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "11:00", iso: "2026-11-18T11:00:00+08:00", teams: "Nicaragua vs Montserrat", broadcasters: ["Fox Sports 1 USA"], hot: false }
+      { id: "cnl-1", league: "CONCACAF Nations League", date: "Fri, 13 Nov 2026", time: "06:00", iso: "2026-11-13T06:00:00+08:00", teams: "Aruba vs Martinique", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-2", league: "CONCACAF Nations League", date: "Fri, 13 Nov 2026", time: "08:30", iso: "2026-11-13T08:30:00+08:00", teams: "Curaçao vs Panama", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-3", league: "CONCACAF Nations League", date: "Sat, 14 Nov 2026", time: "07:00", iso: "2026-11-14T07:00:00+08:00", teams: "Saint Martin vs El Salvador", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-4", league: "CONCACAF Nations League", date: "Sat, 14 Nov 2026", time: "10:00", iso: "2026-11-14T10:00:00+08:00", teams: "Guatemala vs Canada", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "cnl-5", league: "CONCACAF Nations League", date: "Sun, 15 Nov 2026", time: "05:30", iso: "2026-11-15T05:30:00+08:00", teams: "Haiti vs USA", broadcasters: ["Telemundo"], hot: true },
+      { id: "cnl-6", league: "CONCACAF Nations League", date: "Mon, 16 Nov 2026", time: "07:00", iso: "2026-11-16T07:00:00+08:00", teams: "Panama vs Curaçao", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-7", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "08:00", iso: "2026-11-17T08:00:00+08:00", teams: "Trinidad and Tobago vs Antigua and Barbuda", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-8", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "09:00", iso: "2026-11-17T09:00:00+08:00", teams: "Canada vs Guatemala", broadcasters: ["Fox Sports 1 USA"], hot: false },
+      { id: "cnl-9", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "08:00", iso: "2026-11-18T08:00:00+08:00", teams: "French Guiana vs Saint Vincent and the Grenadines", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-10", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "09:00", iso: "2026-11-18T09:00:00+08:00", teams: "El Salvador vs Saint Martin", broadcasters: ["Fox Sports 1 USA"], hot: false },
+      { id: "cnl-11", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "11:00", iso: "2026-11-18T11:00:00+08:00", teams: "Nicaragua vs Montserrat", broadcasters: ["Fox Sports 1 USA"], hot: false },
+
+      // Asian Cup Qualification
+      { id: "acq-1", league: "Asian Cup Qualification", date: "Wed, 13 Jan 2027", time: "22:00", iso: "2027-01-13T22:00:00+08:00", teams: "Jordan vs Bahrain", broadcasters: ["Bahrain Sport 1"], hot: false },
+      { id: "acq-2", league: "Asian Cup Qualification", date: "Mon, 18 Jan 2027", time: "22:00", iso: "2027-01-18T22:00:00+08:00", teams: "Uzbekistan vs Bahrain", broadcasters: ["Bahrain Sport 1"], hot: false },
+
+      // FIFA U-17 World Cup
+      { id: "u17-1", league: "FIFA U-17 World Cup", date: "Thu, 19 Nov 2026", time: "21:00", iso: "2026-11-19T21:00:00+08:00", teams: "France U17 vs Haiti U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-2", league: "FIFA U-17 World Cup", date: "Thu, 19 Nov 2026", time: "23:00", iso: "2026-11-19T23:00:00+08:00", teams: "Mozambique U17 vs Denmark U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-3", league: "FIFA U-17 World Cup", date: "Fri, 20 Nov 2026", time: "21:00", iso: "2026-11-20T21:00:00+08:00", teams: "Belgium U17 vs Vietnam U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-4", league: "FIFA U-17 World Cup", date: "Fri, 20 Nov 2026", time: "23:00", iso: "2026-11-20T23:00:00+08:00", teams: "Italy U17 vs Jamaica U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-5", league: "FIFA U-17 World Cup", date: "Sat, 21 Nov 2026", time: "20:30", iso: "2026-11-21T20:30:00+08:00", teams: "Japan U17 vs Colombia U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-6", league: "FIFA U-17 World Cup", date: "Sat, 21 Nov 2026", time: "22:30", iso: "2026-11-21T22:30:00+08:00", teams: "United States U17 vs Montenegro U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-7", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "20:30", iso: "2026-11-22T20:30:00+08:00", teams: "Denmark U17 vs Australia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-8", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "22:30", iso: "2026-11-22T22:30:00+08:00", teams: "Korea Republic U17 vs New Caledonia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-9", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "20:30", iso: "2026-11-23T20:30:00+08:00", teams: "Spain U17 vs Fiji U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-10", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "22:30", iso: "2026-11-23T22:30:00+08:00", teams: "Italy U17 vs Côte d’Ivoire U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-11", league: "FIFA U-17 World Cup", date: "Tue, 24 Nov 2026", time: "20:30", iso: "2026-11-24T20:30:00+08:00", teams: "Costa Rica U17 vs Republic of Ireland U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-12", league: "FIFA U-17 World Cup", date: "Tue, 24 Nov 2026", time: "22:30", iso: "2026-11-24T22:30:00+08:00", teams: "United States U17 vs Chile U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-13", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "21:30", iso: "2026-11-25T21:30:00+08:00", teams: "Uruguay U17 vs France U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-14", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "23:30", iso: "2026-11-25T23:30:00+08:00", teams: "Denmark U17 vs Argentina U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-15", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "21:00", iso: "2026-11-26T21:00:00+08:00", teams: "New Zealand U17 vs Belgium U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-16", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "23:00", iso: "2026-11-26T23:00:00+08:00", teams: "Morocco U17 vs Spain U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-17", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "21:00", iso: "2026-11-27T21:00:00+08:00", teams: "Honduras U17 vs Japan U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-18", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "23:00", iso: "2026-11-27T23:00:00+08:00", teams: "Algeria U17 vs United States U17", broadcasters: ["Fox Sports 2 USA"], hot: false }
     ];
 
     let selectedLeague = 'ALL';
     let selectedDate = 'ALL';
+    let hotOnly = false;
+    let savedReminders = JSON.parse(localStorage.getItem('fx_reminders') || '[]');
     let activeHighlightTarget = null;
     let countdownInterval = null;
 
     // App Initialization
     function initApp() {
+      updateStatsBar();
       setupDateFilterPills();
       setupLeagueFilterTabs();
       autoSelectDayHighlight();
       renderSchedules();
     }
 
+    // Update Summary Stats
+    function updateStatsBar() {
+      document.getElementById('statTotalMatches').innerText = rawMatches.length;
+      document.getElementById('statTotalLeagues').innerText = new Set(rawMatches.map(m => m.league)).size;
+      document.getElementById('statHotMatches').innerText = rawMatches.filter(m => m.hot).length;
+      document.getElementById('statSavedMatches').innerText = savedReminders.length;
+    }
+
+    // Toggle Reminder / Bookmark
+    function toggleReminder(matchId, event) {
+      if (event) event.stopPropagation();
+      const idx = savedReminders.indexOf(matchId);
+      if (idx > -1) {
+        savedReminders.splice(idx, 1);
+        showToast("Reminder removed from watchlist");
+      } else {
+        savedReminders.push(matchId);
+        showToast("Match added to your reminders!");
+      }
+      localStorage.setItem('fx_reminders', JSON.stringify(savedReminders));
+      updateStatsBar();
+      renderSchedules();
+    }
+
+    // Pin Match to Hero Highlight
+    function pinToHighlight(matchId) {
+      const match = rawMatches.find(m => m.id === matchId);
+      if (!match) return;
+      activeHighlightTarget = match;
+      updateHighlightUI(match);
+      startCountdownTimer(match.iso);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`Pinned: ${match.teams}`);
+    }
+
+    // Toast Helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    // Toggle Hot Only Filter
+    function toggleHotFilter() {
+      hotOnly = !hotOnly;
+      const btn = document.getElementById('hotOnlyBtn');
+      if (hotOnly) {
+        btn.classList.remove('bg-slate-900', 'border-slate-700', 'text-slate-300');
+        btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400');
+      } else {
+        btn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
+        btn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400');
+      }
+      applyFilters();
+    }
+
+    // Reset All Filters
+    function resetAllFilters() {
+      selectedLeague = 'ALL';
+      selectedDate = 'ALL';
+      hotOnly = false;
+      document.getElementById('searchInput').value = '';
+      
+      const hotBtn = document.getElementById('hotOnlyBtn');
+      hotBtn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
+      hotBtn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400');
+
+      setupDateFilterPills();
+      const leagueTabsContainer = document.getElementById('leagueFilterTabs');
+      leagueTabsContainer.innerHTML = `
+        <button onclick="selectLeague('ALL', this)" class="league-tab px-4 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black shadow-lg shadow-cyan-500/20 whitespace-nowrap transition">
+          <i class="fa-solid fa-layer-group mr-1.5"></i> ALL LEAGUES
+        </button>
+      `;
+      setupLeagueFilterTabs();
+      renderSchedules();
+    }
+
     // Automatic Highlight Picker based on Current Time & Date Schedule
     function autoSelectDayHighlight() {
       const now = new Date().getTime();
-
-      // Find upcoming matches sorted by date/time
       const sorted = [...rawMatches].sort((a, b) => new Date(a.iso) - new Date(b.iso));
 
-      // 1. First priority: Next upcoming HOT match
       let match = sorted.find(m => new Date(m.iso).getTime() > now && m.hot);
-
-      // 2. Second priority: Next upcoming match overall
       if (!match) {
         match = sorted.find(m => new Date(m.iso).getTime() > now);
       }
-
-      // 3. Fallback: Last scheduled match if all are in the past
       if (!match) {
         match = sorted[sorted.length - 1];
       }
@@ -417,9 +584,10 @@
       countdownInterval = setInterval(updateClock, 1000);
     }
 
-    // Build Date Filter Badges
+    // Build Date Filter Badges (Sorted Chronologically)
     function setupDateFilterPills() {
-      const dates = ['ALL', ...new Set(rawMatches.map(m => m.date))];
+      const sortedByTime = [...rawMatches].sort((a, b) => new Date(a.iso) - new Date(b.iso));
+      const dates = ['ALL', ...new Set(sortedByTime.map(m => m.date))];
       const container = document.getElementById('dateFilterPills');
 
       container.innerHTML = dates.map((d, index) => `
@@ -439,7 +607,7 @@
 
       leagues.forEach(league => {
         const btn = document.createElement('button');
-        btn.onclick = (e) => selectLeague(league, btn);
+        btn.onclick = () => selectLeague(league, btn);
         btn.className = "league-tab px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold hover:border-slate-700 hover:text-white whitespace-nowrap transition";
         btn.innerHTML = `<i class="fa-solid fa-trophy text-cyan-400 mr-1.5"></i> ${league.toUpperCase()}`;
         container.appendChild(btn);
@@ -501,11 +669,12 @@
         // Apply filters
         const matches = grouped[league].filter(m => {
           const matchDateFilter = selectedDate === 'ALL' || m.date === selectedDate;
+          const hotFilter = !hotOnly || m.hot;
           const searchMatch = m.teams.toLowerCase().includes(searchVal) ||
                               m.league.toLowerCase().includes(searchVal) ||
                               m.broadcasters.some(b => b.toLowerCase().includes(searchVal)) ||
                               m.date.toLowerCase().includes(searchVal);
-          return matchDateFilter && searchMatch;
+          return matchDateFilter && hotFilter && searchMatch;
         });
 
         if (matches.length === 0) return;
@@ -554,6 +723,7 @@
           dateGroup[dateStr].forEach(match => {
             const isMultiple = match.broadcasters.length > 1;
             const matchTime = new Date(match.iso).getTime();
+            const isSaved = savedReminders.includes(match.id);
             
             // Match Status Badge Logic
             let statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">UPCOMING</span>';
@@ -564,7 +734,7 @@
             }
 
             html += `
-              <div class="bg-slate-900/90 rounded-xl p-3 sm:p-4 border ${match.hot ? 'border-red-500/50 bg-red-950/10' : 'border-slate-800'} flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-700 transition">
+              <div class="bg-slate-900/90 rounded-xl p-3 sm:p-4 border ${match.hot ? 'border-red-500/50 bg-red-950/10' : 'border-slate-800'} flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:border-slate-700 transition">
                 
                 <!-- Match Details -->
                 <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1">
@@ -575,7 +745,7 @@
                   </div>
 
                   <!-- Teams & Status -->
-                  <div class="space-y-1">
+                  <div class="space-y-1 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-base sm:text-lg font-bold text-white">
                         ${match.teams}
@@ -587,14 +757,20 @@
                       ` : ''}
                       ${statusBadge}
                     </div>
-                    <p class="text-xs text-slate-400">
-                      <i class="fa-solid fa-earth-asia text-slate-500 mr-1"></i> Timezone: MYT (UTC+8)
-                    </p>
+                    <div class="flex items-center gap-3 flex-wrap text-xs text-slate-400">
+                      <span><i class="fa-solid fa-earth-asia text-slate-500 mr-1"></i> MYT (UTC+8)</span>
+                      <button onclick="pinToHighlight('${match.id}')" class="text-cyan-400 hover:text-cyan-300 font-semibold transition flex items-center gap-1">
+                        <i class="fa-solid fa-stopwatch"></i> Countdown
+                      </button>
+                      <button onclick="toggleReminder('${match.id}', event)" class="${isSaved ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-300'} transition flex items-center gap-1">
+                        <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bell"></i> ${isSaved ? 'Reminded' : 'Remind Me'}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 <!-- Broadcaster Channels (Single vs Scrolling Carousel) -->
-                <div class="w-full md:w-80 flex flex-col items-start md:items-end">
+                <div class="w-full lg:w-80 flex flex-col items-start lg:items-end">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1">
                     <i class="fa-solid fa-satellite-dish"></i> Broadcasters ${isMultiple ? '(Scroll ➔)' : ''}
                   </span>
