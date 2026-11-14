@@ -17,9 +17,9 @@
         extend: {
           colors: {
             brand: {
-              dark: '#090d16',
-              card: '#111827',
-              bezel: '#1f293d',
+              dark: '#060911',
+              card: '#0f1624',
+              bezel: '#1b263b',
               accent: '#00f2fe',
               neon: '#10b981',
               gold: '#fbbf24',
@@ -37,22 +37,113 @@
 
   <style>
     body {
-      background-color: #070a12;
+      background-color: #05080f;
       color: #f3f4f6;
       font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
     }
 
-    /* Bezel Styling */
+    /* ==========================================
+       1. INITIAL PRELOADER / STADIUM BOOT SCREEN
+       ========================================== */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at center, #0d172a 0%, #04060c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    #preloader.loaded {
+      opacity: 0;
+      transform: scale(1.03);
+      pointer-events: none;
+    }
+
+    .loader-radar {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #00f2fe;
+      border-right-color: #10b981;
+      animation: spinRadar 1.2s linear infinite;
+    }
+
+    .loader-ring-inner {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      border: 2px dashed rgba(0, 242, 254, 0.45);
+      animation: spinRadarReverse 2.2s linear infinite;
+    }
+
+    @keyframes spinRadar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spinRadarReverse {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .loader-ball-pulse {
+      animation: ballBounceGlow 1.1s ease-in-out infinite alternate;
+    }
+
+    @keyframes ballBounceGlow {
+      0% { transform: scale(0.92); filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.4)); }
+      100% { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(16, 185, 129, 0.9)); }
+    }
+
+    /* ==========================================
+       2. STATIC LIGHTWEIGHT TACTICAL GRID & CARDS
+       ========================================== */
+    .tactical-grid-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.2) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+
     .bezel-container {
-      background: linear-gradient(145deg, #182235, #0f172a);
-      border: 2px solid #28354e;
-      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      background: linear-gradient(145deg, #141d2f, #0b111e);
+      border: 1.5px solid #28354e;
+      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.08);
       border-radius: 1.25rem;
+      overflow: hidden;
+    }
+
+    .match-card {
+      transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .match-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 242, 254, 0.45);
     }
 
     .bezel-header {
       background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
-      border-bottom: 2px solid #334155;
+      border-bottom: 1.5px solid #28354e;
     }
 
     /* Broadcaster Horizontal Carousel Scroll */
@@ -81,7 +172,6 @@
       border-radius: 4px;
     }
 
-    /* Gradient Mask for Scrollable Carousel */
     .scroll-mask {
       position: relative;
     }
@@ -92,8 +182,8 @@
       top: 0;
       right: 0;
       bottom: 4px;
-      width: 20px;
-      background: linear-gradient(to right, transparent, rgba(17, 24, 39, 0.9));
+      width: 22px;
+      background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.95));
       pointer-events: none;
     }
 
@@ -106,196 +196,251 @@
     }
   </style>
 </head>
-<body class="min-h-screen pb-16 text-slate-100">
+<body class="min-h-screen pb-16 text-slate-100 selection:bg-cyan-400 selection:text-slate-950">
 
-  <!-- Main Navigation Header -->
-  <header class="bg-slate-950/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 py-3.5 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-      
-      <!-- Brand Logo -->
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg shadow-cyan-500/20">
-          <i class="fa-solid fa-futbol"></i>
-        </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-black font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-400 uppercase">
-            FOOTBALL XTRA SCHEDULES
-          </h1>
-          <p class="text-xs font-bold text-cyan-400 tracking-widest flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-            LIVE UPDATES EVERY DAY • ALL TIMES IN MYT (UTC+8)
-          </p>
-        </div>
+  <!-- ==========================================
+       INITIAL LOADING / STADIUM TELEMETRY SCREEN
+       ========================================== -->
+  <div id="preloader">
+    <div class="loader-radar mb-6">
+      <div class="loader-ring"></div>
+      <div class="loader-ring-inner"></div>
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center text-slate-950 text-3xl font-black shadow-2xl loader-ball-pulse">
+        <i class="fa-solid fa-futbol"></i>
       </div>
-
-      <!-- Live Search & Quick Status -->
-      <div class="w-full md:w-96 flex items-center gap-2">
-        <div class="relative flex-1">
-          <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="Search teams, leagues, channels..." 
-            class="w-full bg-slate-900 text-slate-100 placeholder-slate-400 px-4 py-2.5 pl-10 rounded-xl border border-slate-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm transition"
-            onkeyup="applyFilters()"
-          >
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-        </div>
-        <button 
-          id="hotOnlyBtn"
-          onclick="toggleHotFilter()"
-          title="Filter Hot Matches Only"
-          class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-red-500/60 hover:text-red-400 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 whitespace-nowrap"
-        >
-          <i class="fa-solid fa-fire text-red-500"></i>
-          <span class="hidden sm:inline">HOT</span>
-        </button>
-      </div>
-
     </div>
-  </header>
 
-  <!-- Content Body -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8">
+    <div class="text-center space-y-2 px-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em]">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        SYNCING GLOBAL BROADCASTS
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black font-display tracking-wider text-white uppercase">
+        FOOTBALL <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">XTRA</span>
+      </h2>
+      <p id="loaderStatusText" class="text-xs font-mono text-slate-400">Initializing MYT (UTC+8) Match Engine...</p>
+    </div>
 
-    <!-- Automatic Featured Match Hero Banner -->
-    <section id="heroHighlight" class="bezel-container p-5 sm:p-6 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border-cyan-500/40">
-      <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+    <!-- Sleek Progress Bar -->
+    <div class="w-64 sm:w-80 mt-6 bg-slate-900/90 h-2 rounded-full overflow-hidden border border-slate-800 p-0.5">
+      <div id="loaderProgressBar" class="h-full w-0 bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-300 rounded-full transition-all duration-200 shadow-[0_0_12px_#00f2fe]"></div>
+    </div>
+    <span id="loaderPercent" class="mt-2 text-xs font-black font-display text-cyan-400 tracking-widest">0%</span>
+  </div>
+
+  <!-- Lightweight Static Tactical Grid Background -->
+  <div class="tactical-grid-bg"></div>
+
+  <!-- Main Content Wrapper -->
+  <div class="relative z-10">
+
+    <!-- Main Navigation Header -->
+    <header class="bg-slate-950/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
+  <!-- Main Content Wrapper -->
+  <div class="relative z-10">
+
+    <!-- Main Navigation Header -->
+    <header class="bg-slate-950/85 border-b border-slate-800/90 sticky top-0 z-50 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 py-3.5 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
         
-        <!-- Next Match Information -->
-        <div class="space-y-2 text-center lg:text-left w-full lg:w-auto">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wider">
-            <i class="fa-solid fa-fire text-red-500 animate-pulse"></i> MATCHDAY HIGHLIGHT
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg shadow-cyan-500/25 hover:rotate-12 transition-transform duration-300">
+            <i class="fa-solid fa-futbol"></i>
           </div>
-          <h2 id="highlightTitle" class="text-2xl sm:text-3xl font-black font-display text-white">
-            Loading highlight...
-          </h2>
-          <p id="highlightMeta" class="text-sm font-semibold text-slate-300">
-            <span id="highlightLeague" class="text-cyan-400 font-bold">--</span> • <span id="highlightDate">--</span> @ <span id="highlightTime" class="text-emerald-400">--</span> MYT
-          </p>
-          <div id="highlightChannels" class="pt-1 flex flex-wrap justify-center lg:justify-start gap-2">
-            <!-- Dynamic Broadcasters -->
-          </div>
-        </div>
-
-        <!-- Live Countdown Timer -->
-        <div class="bg-slate-950/90 p-4 sm:p-5 rounded-2xl border border-slate-800 flex items-center justify-center gap-3 sm:gap-4 w-full lg:w-auto text-center shadow-inner">
-          <div class="flex flex-col min-w-[50px]">
-            <span id="cd-days" class="text-2xl sm:text-4xl font-black text-cyan-400 font-display">00</span>
-            <span class="text-[10px] text-slate-400 uppercase font-bold">Days</span>
-          </div>
-          <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
-          <div class="flex flex-col min-w-[50px]">
-            <span id="cd-hours" class="text-2xl sm:text-4xl font-black text-white font-display">00</span>
-            <span class="text-[10px] text-slate-400 uppercase font-bold">Hours</span>
-          </div>
-          <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
-          <div class="flex flex-col min-w-[50px]">
-            <span id="cd-mins" class="text-2xl sm:text-4xl font-black text-white font-display">00</span>
-            <span class="text-[10px] text-slate-400 uppercase font-bold">Mins</span>
-          </div>
-          <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
-          <div class="flex flex-col min-w-[50px]">
-            <span id="cd-secs" class="text-2xl sm:text-4xl font-black text-emerald-400 font-display">00</span>
-            <span class="text-[10px] text-slate-400 uppercase font-bold">Secs</span>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-400 uppercase">
+              FOOTBALL XTRA SCHEDULES
+            </h1>
+            <p class="text-xs font-bold text-cyan-400 tracking-widest flex items-center gap-2">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              LIVE UPDATES EVERY DAY • MYT (UTC+8)
+            </p>
           </div>
         </div>
 
-      </div>
-    </section>
+        <!-- Live Search & Quick Status Filters -->
+        <div class="w-full md:w-auto flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <div class="relative flex-1 md:w-72">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search teams, leagues, channels..." 
+              class="w-full bg-slate-900/90 text-slate-100 placeholder-slate-400 px-4 py-2.5 pl-10 rounded-xl border border-slate-700/80 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 text-sm transition"
+              onkeyup="applyFilters()"
+            >
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+          </div>
 
-    <!-- Stats & Quick Controls Bar -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-          <i class="fa-solid fa-calendar-check"></i>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase font-bold text-slate-400">Total Fixtures</p>
-          <p id="statTotalMatches" class="text-lg font-black font-display text-white">0</p>
-        </div>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-          <i class="fa-solid fa-trophy"></i>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase font-bold text-slate-400">Competitions</p>
-          <p id="statTotalLeagues" class="text-lg font-black font-display text-white">0</p>
-        </div>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
-          <i class="fa-solid fa-fire"></i>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase font-bold text-slate-400">Big Matches</p>
-          <p id="statHotMatches" class="text-lg font-black font-display text-white">0</p>
-        </div>
-      </div>
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-          <i class="fa-solid fa-bell"></i>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase font-bold text-slate-400">Saved Reminders</p>
-          <p id="statSavedMatches" class="text-lg font-black font-display text-white">0</p>
-        </div>
-      </div>
-    </div>
+          <button 
+            id="hotOnlyBtn"
+            onclick="toggleHotFilter()"
+            title="Filter Hot Matches Only"
+            class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-red-500/60 hover:text-red-400 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <i class="fa-solid fa-fire text-red-500"></i>
+            <span>HOT</span>
+          </button>
 
-    <!-- Filters Section -->
-    <div class="space-y-3">
-      <!-- Date Quick Filter Pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold scrollbar-none" id="dateFilterPills">
-        <!-- Injected via JavaScript -->
+          <button 
+            id="savedOnlyBtn"
+            onclick="toggleSavedFilter()"
+            title="Filter Saved Reminders Only"
+            class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-amber-500/60 hover:text-amber-400 text-xs font-black uppercase tracking-wider transition flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <i class="fa-solid fa-bell text-amber-400"></i>
+            <span class="hidden sm:inline">SAVED</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Content Body -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-8">
+
+      <!-- Automatic Featured Match Hero Banner -->
+      <section id="heroHighlight" class="bezel-container p-5 sm:p-6 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border-cyan-500/40">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+          
+          <!-- Next Match Information -->
+          <div class="space-y-2.5 text-center lg:text-left w-full lg:w-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wider">
+              <i class="fa-solid fa-fire text-red-500 animate-pulse"></i> MATCHDAY SPOTLIGHT
+            </div>
+            <h2 id="highlightTitle" class="text-2xl sm:text-4xl font-black font-display text-white tracking-tight">
+              Loading highlight...
+            </h2>
+            <p id="highlightMeta" class="text-sm font-semibold text-slate-300">
+              <span id="highlightLeague" class="text-cyan-400 font-bold">--</span> • <span id="highlightDate">--</span> @ <span id="highlightTime" class="text-emerald-400 font-black">--</span> MYT
+            </p>
+            <div id="highlightChannels" class="pt-1 flex flex-wrap justify-center lg:justify-start gap-2">
+              <!-- Dynamic Broadcasters -->
+            </div>
+          </div>
+
+          <!-- Live Countdown Timer -->
+          <div class="bg-slate-950/95 p-4 sm:p-5 rounded-2xl border border-slate-800 flex items-center justify-center gap-3 sm:gap-4 w-full lg:w-auto text-center shadow-inner">
+            <div class="flex flex-col min-w-[54px]">
+              <span id="cd-days" class="text-2xl sm:text-4xl font-black text-cyan-400 font-display">00</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Days</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
+            <div class="flex flex-col min-w-[54px]">
+              <span id="cd-hours" class="text-2xl sm:text-4xl font-black text-white font-display">00</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Hours</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
+            <div class="flex flex-col min-w-[54px]">
+              <span id="cd-mins" class="text-2xl sm:text-4xl font-black text-white font-display">00</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Mins</span>
+            </div>
+            <span class="text-xl sm:text-2xl font-bold text-slate-600">:</span>
+            <div class="flex flex-col min-w-[54px]">
+              <span id="cd-secs" class="text-2xl sm:text-4xl font-black text-emerald-400 font-display">00</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Secs</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Interactive Stats Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="match-card bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Fixtures</p>
+            <p id="statTotalMatches" class="text-xl font-black font-display text-white">0</p>
+          </div>
+        </div>
+        <div class="match-card bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Competitions</p>
+            <p id="statTotalLeagues" class="text-xl font-black font-display text-white">0</p>
+          </div>
+        </div>
+        <div onclick="toggleHotFilter()" class="cursor-pointer match-card bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Big Matches</p>
+            <p id="statHotMatches" class="text-xl font-black font-display text-white">0</p>
+          </div>
+        </div>
+        <div onclick="toggleSavedFilter()" class="cursor-pointer match-card bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Saved Watchlist</p>
+            <p id="statSavedMatches" class="text-xl font-black font-display text-white">0</p>
+          </div>
+        </div>
       </div>
 
-      <!-- League Category Filter Tabs -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs sm:text-sm font-bold scrollbar-none" id="leagueFilterTabs">
-        <button onclick="selectLeague('ALL', this)" class="league-tab px-4 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black shadow-lg shadow-cyan-500/20 whitespace-nowrap transition">
-          <i class="fa-solid fa-layer-group mr-1.5"></i> ALL LEAGUES
+      <!-- Filters Section -->
+      <div class="space-y-3 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 backdrop-blur-md">
+        <!-- Date Quick Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold scrollbar-none" id="dateFilterPills">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- League Category Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs sm:text-sm font-bold scrollbar-none" id="leagueFilterTabs">
+          <button onclick="selectLeague('ALL', this)" class="league-tab px-4 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black shadow-lg shadow-cyan-500/20 whitespace-nowrap transition">
+            <i class="fa-solid fa-layer-group mr-1.5"></i> ALL LEAGUES
+          </button>
+          <!-- Dynamic League Tabs -->
+        </div>
+      </div>
+
+      <!-- Match Schedule Section -->
+      <section id="scheduleContainer" class="space-y-8">
+        <!-- Bezel League Cards Injected Here -->
+      </section>
+
+      <!-- No Match Found State -->
+      <div id="noResults" class="hidden text-center py-16 bg-slate-900/50 rounded-2xl border border-slate-800 backdrop-blur-md">
+        <i class="fa-solid fa-circle-xmark text-4xl text-slate-600 mb-3"></i>
+        <p class="text-lg font-bold text-slate-300">No matches found</p>
+        <p class="text-sm text-slate-500 mb-4">Try adjusting your search criteria, league, or date filter.</p>
+        <button onclick="resetAllFilters()" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-slate-950 text-xs font-black uppercase tracking-wider hover:bg-cyan-400 transition shadow-lg shadow-cyan-500/20">
+          Reset All Filters
         </button>
-        <!-- Dynamic League Tabs -->
       </div>
-    </div>
 
-    <!-- Match Schedule Section -->
-    <section id="scheduleContainer" class="space-y-8">
-      <!-- Bezel League Cards Injected Here -->
-    </section>
+    </main>
 
-    <!-- No Match Found State -->
-    <div id="noResults" class="hidden text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
-      <i class="fa-solid fa-circle-xmark text-4xl text-slate-600 mb-3"></i>
-      <p class="text-lg font-bold text-slate-300">No matches found</p>
-      <p class="text-sm text-slate-500 mb-4">Try adjusting your search criteria, league, or date filter.</p>
-      <button onclick="resetAllFilters()" class="px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 text-xs font-black uppercase tracking-wider hover:bg-cyan-400 transition">
-        Reset All Filters
-      </button>
-    </div>
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto px-4 mt-14 text-center text-xs text-slate-500 space-y-1">
+      <p class="font-semibold text-slate-400">FOOTBALL XTRA SCHEDULES • ALL RIGHTS RESERVED 2026/2027</p>
+      <p>Match kick-off schedules are automatically synced in Malaysian Time (MYT / UTC+8).</p>
+    </footer>
 
-  </main>
+  </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 border border-cyan-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2.5">
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900/95 border border-cyan-500/60 text-slate-100 px-4 py-3 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2.5 backdrop-blur-md">
     <i class="fa-solid fa-circle-check text-cyan-400 text-sm"></i>
     <span id="toastMsg">Action completed</span>
   </div>
 
-  <!-- Footer -->
-  <footer class="max-w-7xl mx-auto px-4 mt-12 text-center text-xs text-slate-500 space-y-1">
-    <p class="font-semibold">FOOTBALL XTRA SCHEDULES • ALL RIGHTS RESERVED 2026</p>
-    <p>Match kick-off schedules are automatically calculated in Malaysian Time (MYT / UTC+8).</p>
-  </footer>
-
   <!-- Application Logic -->
   <script>
-    // Updated Schedule Data Array (Old Schedules Removed)
+    // =========================================================================
+    // UPDATED SCHEDULE DATASET (All Outdated Fixtures Removed, New Added)
+    // =========================================================================
     const rawMatches = [
       // Segunda Division
-      { id: "sd-1", league: "Segunda Division", date: "Sat, 14 Nov 2026", time: "03:30", iso: "2026-11-14T03:30:00+08:00", teams: "Leganés vs Burgos", broadcasters: ["beIN Sports Malaysia"], hot: false },
-      { id: "sd-2", league: "Segunda Division", date: "Sat, 14 Nov 2026", time: "21:00", iso: "2026-11-14T21:00:00+08:00", teams: "Real Valladolid vs CD Castellón", broadcasters: ["beIN Sports Malaysia"], hot: false },
-      { id: "sd-3", league: "Segunda Division", date: "Sun, 15 Nov 2026", time: "04:00", iso: "2026-11-15T04:00:00+08:00", teams: "Real Oviedo vs Girona", broadcasters: ["beIN Sports 3 Malaysia"], hot: true },
+      { id: "sd-1", league: "Segunda Division", date: "Sat, 14 Nov 2026", time: "21:00", iso: "2026-11-14T21:00:00+08:00", teams: "Real Valladolid vs CD Castellón", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "sd-2", league: "Segunda Division", date: "Sun, 15 Nov 2026", time: "04:00", iso: "2026-11-15T04:00:00+08:00", teams: "Real Oviedo vs Girona", broadcasters: ["beIN Sports 3 Malaysia"], hot: true },
 
       // Ekstraklasa
       { id: "eks-1", league: "Ekstraklasa", date: "Sat, 21 Nov 2026", time: "01:00", iso: "2026-11-21T01:00:00+08:00", teams: "Piast Gliwice vs Korona Kielce", broadcasters: ["beIN SPORTS USA"], hot: false },
@@ -303,62 +448,101 @@
       // Taça de Portugal
       { id: "tdp-1", league: "Taça de Portugal", date: "Sat, 21 Nov 2026", time: "04:45", iso: "2026-11-21T04:45:00+08:00", teams: "Porto vs Paredes", broadcasters: ["beIN SPORTS USA"], hot: true },
 
+      // Ligue 2
+      { id: "lg2-1", league: "Ligue 2", date: "Sat, 21 Nov 2026", time: "03:00", iso: "2026-11-21T03:00:00+08:00", teams: "Red Star vs Pau", broadcasters: ["beIN Sports Arabia 5"], hot: false },
+
       // Women’s Super League
-      { id: "wsl-1", league: "Women’s Super League", date: "Sat, 14 Nov 2026", time: "20:45", iso: "2026-11-14T20:45:00+08:00", teams: "Manchester United vs Crystal Palace", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
+      { id: "wsl-1", league: "Women’s Super League", date: "Sat, 14 Nov 2026", time: "20:45", iso: "2026-11-14T20:45:00+08:00", teams: "Manchester United vs Crystal Palace", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: true },
       { id: "wsl-2", league: "Women’s Super League", date: "Sat, 14 Nov 2026", time: "23:00", iso: "2026-11-14T23:00:00+08:00", teams: "Tottenham Hotspur vs Everton", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
       { id: "wsl-3", league: "Women’s Super League", date: "Sun, 15 Nov 2026", time: "01:15", iso: "2026-11-15T01:15:00+08:00", teams: "Brighton & Hove Albion vs Liverpool", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: true },
       { id: "wsl-4", league: "Women’s Super League", date: "Sun, 15 Nov 2026", time: "22:00", iso: "2026-11-15T22:00:00+08:00", teams: "Aston Villa vs Birmingham City", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: false },
       { id: "wsl-5", league: "Women’s Super League", date: "Mon, 16 Nov 2026", time: "00:30", iso: "2026-11-16T00:30:00+08:00", teams: "Arsenal vs London City Lionesses", broadcasters: ["Sky Sports Premier League", "beIN Sports 3 Malaysia"], hot: true },
       { id: "wsl-6", league: "Women’s Super League", date: "Sat, 21 Nov 2026", time: "20:45", iso: "2026-11-21T20:45:00+08:00", teams: "Liverpool vs Chelsea FC", broadcasters: ["Sky Sports Premier League"], hot: true },
 
+      // EFL League One
+      { id: "efl1-1", league: "EFL League One", date: "Sat, 21 Nov 2026", time: "04:00", iso: "2026-11-21T04:00:00+08:00", teams: "Barnsley vs Sheffield Wednesday", broadcasters: ["beIN Sports Arabia 2"], hot: true },
+
       // EFL League Two
       { id: "efl2-1", league: "EFL League Two", date: "Sat, 14 Nov 2026", time: "20:30", iso: "2026-11-14T20:30:00+08:00", teams: "Exeter City vs Cheltenham Town", broadcasters: ["beIN Sports Arabia 2"], hot: false },
       { id: "efl2-2", league: "EFL League Two", date: "Sun, 15 Nov 2026", time: "01:30", iso: "2026-11-15T01:30:00+08:00", teams: "Fleetwood Town vs Tranmere Rovers", broadcasters: ["beIN Sports Arabia 5", "beIN Sports Arabia 7"], hot: false },
 
       // Africa Cup of Nations Qualification
-      { id: "afcon-1", league: "Africa Cup of Nations Qualification", date: "Thu, 12 Nov 2026", time: "23:00", iso: "2026-11-12T23:00:00+08:00", teams: "Ghana vs Somalia", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
-      { id: "afcon-2", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Congo DR vs Sierra Leone", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 3", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-3", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Equatorial Guinea vs Zimbabwe", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
-      { id: "afcon-4", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "00:00", iso: "2026-11-13T00:00:00+08:00", teams: "Guinea vs Eritrea", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
-      { id: "afcon-5", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Côte d’Ivoire vs Gambia", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 5"], hot: true },
-      { id: "afcon-6", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Cameroon vs Namibia", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 6", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-7", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "03:00", iso: "2026-11-13T03:00:00+08:00", teams: "Senegal vs Sudan", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
-      { id: "afcon-8", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Comoros vs Congo", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 3"], hot: false },
-      { id: "afcon-9", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Zambia vs Burundi", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-10", league: "Africa Cup of Nations Qualification", date: "Fri, 13 Nov 2026", time: "21:00", iso: "2026-11-13T21:00:00+08:00", teams: "Mozambique vs Ethiopia", broadcasters: ["beIN Sports Arabia 1", "beIN SPORTS XTRA"], hot: false },
-      { id: "afcon-11", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Tunisia vs Libya", broadcasters: ["beIN Sports Malaysia", "beIN Sports Arabia 1", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-12", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "South Africa vs Kenya", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 4"], hot: false },
-      { id: "afcon-13", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Nigeria vs Tanzania", broadcasters: ["beIN Sports Arabia 3", "beIN SPORTS USA"], hot: true },
-      { id: "afcon-14", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Burkina Faso vs Mauritania", broadcasters: ["beIN Sports Arabia 2"], hot: false },
-      { id: "afcon-15", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "00:00", iso: "2026-11-14T00:00:00+08:00", teams: "Cape Verde Islands vs Liberia", broadcasters: ["beIN Sports Arabia 5"], hot: false },
-      { id: "afcon-16", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "03:00", iso: "2026-11-14T03:00:00+08:00", teams: "Egypt vs Malawi", broadcasters: ["beIN Sports 3 Malaysia", "beIN Sports Arabia 2", "beIN SPORTS USA"], hot: true },
-      { id: "afcon-17", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "03:00", iso: "2026-11-14T03:00:00+08:00", teams: "Mali vs Rwanda", broadcasters: ["beIN Sports Arabia 9", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-18", league: "Africa Cup of Nations Qualification", date: "Sat, 14 Nov 2026", time: "04:00", iso: "2026-11-14T04:00:00+08:00", teams: "Morocco vs Niger", broadcasters: ["beIN Sports 2 Malaysia", "beIN Sports Arabia 1"], hot: true },
-      { id: "afcon-19", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "00:00", iso: "2026-11-15T00:00:00+08:00", teams: "Uganda vs Botswana", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-20", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Algeria vs Togo", broadcasters: ["beIN Sports Malaysia"], hot: false },
-      { id: "afcon-21", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Angola vs South Sudan", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-22", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Zimbabwe vs Equatorial Guinea", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-23", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Namibia vs Cameroon", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
-      { id: "afcon-24", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Sudan vs Senegal", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-25", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "23:00", iso: "2026-11-16T23:00:00+08:00", teams: "Somalia vs Ghana", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-26", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Eritrea vs Guinea", broadcasters: ["beIN Sports Malaysia"], hot: false },
-      { id: "afcon-27", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Central African Republic vs Benin", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-28", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Tanzania vs Nigeria", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-29", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "South Sudan vs Angola", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-30", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Malawi vs Egypt", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
-      { id: "afcon-31", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Ethiopia vs Mozambique", broadcasters: ["beIN SPORTS XTRA"], hot: false },
-      { id: "afcon-32", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Gambia vs Côte d’Ivoire", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
-      { id: "afcon-33", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Sierra Leone vs Congo DR", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
-      { id: "afcon-34", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Libya vs Tunisia", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-35", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Togo vs Algeria", broadcasters: ["beIN SPORTS XTRA"], hot: false },
-      { id: "afcon-36", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Congo vs Comoros", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
-      { id: "afcon-37", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Liberia vs Cape Verde Islands", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
-      { id: "afcon-38", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Mauritania vs Burkina Faso", broadcasters: ["beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
-      { id: "afcon-39", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "04:00", iso: "2026-11-18T04:00:00+08:00", teams: "Niger vs Morocco", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-1", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "00:00", iso: "2026-11-15T00:00:00+08:00", teams: "Uganda vs Botswana", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-2", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Algeria vs Togo", broadcasters: ["beIN Sports Malaysia"], hot: true },
+      { id: "afcon-3", league: "Africa Cup of Nations Qualification", date: "Sun, 15 Nov 2026", time: "03:00", iso: "2026-11-15T03:00:00+08:00", teams: "Angola vs South Sudan", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-4", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Zimbabwe vs Equatorial Guinea", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-5", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Namibia vs Cameroon", broadcasters: ["beIN Sports 2 Malaysia"], hot: true },
+      { id: "afcon-6", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "21:00", iso: "2026-11-16T21:00:00+08:00", teams: "Sudan vs Senegal", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-7", league: "Africa Cup of Nations Qualification", date: "Mon, 16 Nov 2026", time: "23:00", iso: "2026-11-16T23:00:00+08:00", teams: "Somalia vs Ghana", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS USA"], hot: false },
+      { id: "afcon-8", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Eritrea vs Guinea", broadcasters: ["beIN Sports Malaysia"], hot: false },
+      { id: "afcon-9", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "00:00", iso: "2026-11-17T00:00:00+08:00", teams: "Central African Republic vs Benin", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-10", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Tanzania vs Nigeria", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-11", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "South Sudan vs Angola", broadcasters: ["beIN Sports 2 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-12", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Malawi vs Egypt", broadcasters: ["beIN Sports 3 Malaysia"], hot: true },
+      { id: "afcon-13", league: "Africa Cup of Nations Qualification", date: "Tue, 17 Nov 2026", time: "21:00", iso: "2026-11-17T21:00:00+08:00", teams: "Ethiopia vs Mozambique", broadcasters: ["beIN SPORTS XTRA"], hot: false },
+      { id: "afcon-14", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Gambia vs Côte d’Ivoire", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: true },
+      { id: "afcon-15", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Sierra Leone vs Congo DR", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-16", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Libya vs Tunisia", broadcasters: ["beIN Sports 3 Malaysia", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-17", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Togo vs Algeria", broadcasters: ["beIN SPORTS XTRA"], hot: false },
+      { id: "afcon-18", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Congo vs Comoros", broadcasters: ["beIN Sports 2 Malaysia"], hot: false },
+      { id: "afcon-19", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Liberia vs Cape Verde Islands", broadcasters: ["beIN Sports 3 Malaysia"], hot: false },
+      { id: "afcon-20", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "03:00", iso: "2026-11-18T03:00:00+08:00", teams: "Mauritania vs Burkina Faso", broadcasters: ["beIN SPORTS XTRA", "beIN SPORTS XTRA en Español"], hot: false },
+      { id: "afcon-21", league: "Africa Cup of Nations Qualification", date: "Wed, 18 Nov 2026", time: "04:00", iso: "2026-11-18T04:00:00+08:00", teams: "Niger vs Morocco", broadcasters: ["beIN Sports Malaysia", "beIN SPORTS USA"], hot: true },
+
+      // Indian Super League
+      { id: "isl-1", league: "Indian Super League", date: "Fri, 20 Nov 2026", time: "19:30", iso: "2026-11-20T19:30:00+08:00", teams: "East Bengal II vs SC Delhi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-2", league: "Indian Super League", date: "Fri, 20 Nov 2026", time: "22:00", iso: "2026-11-20T22:00:00+08:00", teams: "Bengaluru vs Mumbai City", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-3", league: "Indian Super League", date: "Sat, 21 Nov 2026", time: "19:30", iso: "2026-11-21T19:30:00+08:00", teams: "Chennaiyin vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-4", league: "Indian Super League", date: "Sat, 21 Nov 2026", time: "22:00", iso: "2026-11-21T22:00:00+08:00", teams: "NorthEast United vs Goa", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-5", league: "Indian Super League", date: "Sun, 22 Nov 2026", time: "22:00", iso: "2026-11-22T22:00:00+08:00", teams: "Churchill Brothers vs Mohun Bagan", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-6", league: "Indian Super League", date: "Tue, 24 Nov 2026", time: "22:00", iso: "2026-11-24T22:00:00+08:00", teams: "NorthEast United vs SC Delhi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-7", league: "Indian Super League", date: "Fri, 27 Nov 2026", time: "22:00", iso: "2026-11-27T22:00:00+08:00", teams: "Inter Kashi vs Churchill Brothers", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-8", league: "Indian Super League", date: "Sun, 29 Nov 2026", time: "19:30", iso: "2026-11-29T19:30:00+08:00", teams: "Goa vs Kerala Blasters", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-9", league: "Indian Super League", date: "Sun, 29 Nov 2026", time: "22:00", iso: "2026-11-29T22:00:00+08:00", teams: "East Bengal II vs Mohun Bagan", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-10", league: "Indian Super League", date: "Mon, 30 Nov 2026", time: "19:30", iso: "2026-11-30T19:30:00+08:00", teams: "Mumbai City vs Chennaiyin", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-11", league: "Indian Super League", date: "Mon, 30 Nov 2026", time: "22:00", iso: "2026-11-30T22:00:00+08:00", teams: "NorthEast United vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-12", league: "Indian Super League", date: "Fri, 4 Dec 2026", time: "19:30", iso: "2026-12-04T19:30:00+08:00", teams: "Delhi Dynamos vs Bengaluru", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-13", league: "Indian Super League", date: "Fri, 4 Dec 2026", time: "22:00", iso: "2026-12-04T22:00:00+08:00", teams: "East Bengal II vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-14", league: "Indian Super League", date: "Sat, 5 Dec 2026", time: "19:30", iso: "2026-12-05T19:30:00+08:00", teams: "Goa vs Mumbai City", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-15", league: "Indian Super League", date: "Sat, 5 Dec 2026", time: "22:00", iso: "2026-12-05T22:00:00+08:00", teams: "Inter Kashi vs Mohun Bagan", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-16", league: "Indian Super League", date: "Sun, 6 Dec 2026", time: "19:30", iso: "2026-12-06T19:30:00+08:00", teams: "Kerala Blasters vs Churchill Brothers", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-17", league: "Indian Super League", date: "Sun, 6 Dec 2026", time: "22:00", iso: "2026-12-06T22:00:00+08:00", teams: "NorthEast United vs Chennaiyin", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-18", league: "Indian Super League", date: "Wed, 9 Dec 2026", time: "19:30", iso: "2026-12-09T19:30:00+08:00", teams: "Delhi Dynamos vs Goa", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-19", league: "Indian Super League", date: "Wed, 9 Dec 2026", time: "22:00", iso: "2026-12-09T22:00:00+08:00", teams: "Mohun Bagan vs Bengaluru", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-20", league: "Indian Super League", date: "Thu, 10 Dec 2026", time: "19:30", iso: "2026-12-10T19:30:00+08:00", teams: "Kerala Blasters vs SC Delhi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-21", league: "Indian Super League", date: "Thu, 10 Dec 2026", time: "22:00", iso: "2026-12-10T22:00:00+08:00", teams: "Chennaiyin vs Churchill Brothers", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-22", league: "Indian Super League", date: "Sat, 12 Dec 2026", time: "22:00", iso: "2026-12-12T22:00:00+08:00", teams: "Inter Kashi vs NorthEast United", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-23", league: "Indian Super League", date: "Sun, 13 Dec 2026", time: "19:30", iso: "2026-12-13T19:30:00+08:00", teams: "Mumbai City vs East Bengal II", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-24", league: "Indian Super League", date: "Sun, 13 Dec 2026", time: "22:00", iso: "2026-12-13T22:00:00+08:00", teams: "Churchill Brothers vs Goa", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-25", league: "Indian Super League", date: "Mon, 14 Dec 2026", time: "22:00", iso: "2026-12-14T22:00:00+08:00", teams: "Kerala Blasters vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-26", league: "Indian Super League", date: "Wed, 16 Dec 2026", time: "19:30", iso: "2026-12-16T19:30:00+08:00", teams: "Chennaiyin vs Inter Kashi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-27", league: "Indian Super League", date: "Wed, 16 Dec 2026", time: "22:00", iso: "2026-12-16T22:00:00+08:00", teams: "Delhi Dynamos vs SC Delhi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-28", league: "Indian Super League", date: "Thu, 17 Dec 2026", time: "19:30", iso: "2026-12-17T19:30:00+08:00", teams: "Mumbai City vs Mohun Bagan", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-29", league: "Indian Super League", date: "Sun, 20 Dec 2026", time: "19:30", iso: "2026-12-20T19:30:00+08:00", teams: "SC Delhi vs Churchill Brothers", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-30", league: "Indian Super League", date: "Sun, 20 Dec 2026", time: "22:00", iso: "2026-12-20T22:00:00+08:00", teams: "Delhi Dynamos vs Kerala Blasters", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-31", league: "Indian Super League", date: "Mon, 21 Dec 2026", time: "19:30", iso: "2026-12-21T19:30:00+08:00", teams: "Mumbai City vs Inter Kashi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-32", league: "Indian Super League", date: "Mon, 21 Dec 2026", time: "22:00", iso: "2026-12-21T22:00:00+08:00", teams: "East Bengal II vs NorthEast United", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-33", league: "Indian Super League", date: "Tue, 22 Dec 2026", time: "19:30", iso: "2026-12-22T19:30:00+08:00", teams: "Bengaluru vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-34", league: "Indian Super League", date: "Tue, 22 Dec 2026", time: "22:00", iso: "2026-12-22T22:00:00+08:00", teams: "Goa vs Mohun Bagan", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-35", league: "Indian Super League", date: "Sun, 3 Jan 2027", time: "19:30", iso: "2027-01-03T19:30:00+08:00", teams: "East Bengal II vs Delhi Dynamos", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-36", league: "Indian Super League", date: "Sun, 3 Jan 2027", time: "22:00", iso: "2027-01-03T22:00:00+08:00", teams: "Bengaluru vs Kerala Blasters", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-37", league: "Indian Super League", date: "Thu, 7 Jan 2027", time: "22:00", iso: "2027-01-07T22:00:00+08:00", teams: "RoundGlass Punjab vs Inter Kashi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-38", league: "Indian Super League", date: "Fri, 8 Jan 2027", time: "22:00", iso: "2027-01-08T22:00:00+08:00", teams: "Chennaiyin vs Delhi Dynamos", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-39", league: "Indian Super League", date: "Sat, 9 Jan 2027", time: "19:30", iso: "2027-01-09T19:30:00+08:00", teams: "East Bengal II vs Goa", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-40", league: "Indian Super League", date: "Sat, 9 Jan 2027", time: "22:00", iso: "2027-01-09T22:00:00+08:00", teams: "Churchill Brothers vs Bengaluru", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-41", league: "Indian Super League", date: "Sun, 10 Jan 2027", time: "19:30", iso: "2027-01-10T19:30:00+08:00", teams: "Mohun Bagan vs Kerala Blasters", broadcasters: ["Sony Sports Ten 2"], hot: true },
+      { id: "isl-42", league: "Indian Super League", date: "Sun, 10 Jan 2027", time: "22:00", iso: "2027-01-10T22:00:00+08:00", teams: "SC Delhi vs RoundGlass Punjab", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-43", league: "Indian Super League", date: "Tue, 12 Jan 2027", time: "22:00", iso: "2027-01-12T22:00:00+08:00", teams: "Mumbai City vs Delhi Dynamos", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-44", league: "Indian Super League", date: "Fri, 15 Jan 2027", time: "19:30", iso: "2027-01-15T19:30:00+08:00", teams: "RoundGlass Punjab vs Goa", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-45", league: "Indian Super League", date: "Fri, 15 Jan 2027", time: "22:00", iso: "2027-01-15T22:00:00+08:00", teams: "Delhi Dynamos vs Churchill Brothers", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-46", league: "Indian Super League", date: "Sat, 16 Jan 2027", time: "19:30", iso: "2027-01-16T19:30:00+08:00", teams: "Bengaluru vs Inter Kashi", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-47", league: "Indian Super League", date: "Sat, 16 Jan 2027", time: "22:00", iso: "2027-01-16T22:00:00+08:00", teams: "Kerala Blasters vs East Bengal II", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-48", league: "Indian Super League", date: "Sun, 17 Jan 2027", time: "19:30", iso: "2027-01-17T19:30:00+08:00", teams: "SC Delhi vs Chennaiyin", broadcasters: ["Sony Sports Ten 2"], hot: false },
+      { id: "isl-49", league: "Indian Super League", date: "Sun, 17 Jan 2027", time: "22:00", iso: "2027-01-17T22:00:00+08:00", teams: "Mumbai City vs NorthEast United", broadcasters: ["Sony Sports Ten 2"], hot: false },
 
       // AFC Champions League Elite
       { id: "acle-1", league: "AFC Champions League Elite", date: "Tue, 24 Nov 2026", time: "00:00", iso: "2026-11-24T00:00:00+08:00", teams: "Al Ain vs Esteghlal", broadcasters: ["Shabake 3"], hot: true },
-      { id: "acle-2", league: "AFC Champions League Elite", date: "Tue, 24 Nov 2026", time: "00:00", iso: "2026-11-24T00:00:00+08:00", teams: "Tractor Sazi vs Al Wasl", broadcasters: ["IRIB Varzesh"], hot: false },
+      { id: "acle-2", league: "AFC Champions League Elite", date: "Tue, 24 Nov 2026", time: "00:00", iso: "2026-11-24T00:00:00+08:00", teams: "Tractor Sazi vs Al Wasl", broadcasters: ["IRIB Varzesh"], hot: true },
 
       // AFC Champions League Two
       { id: "acl2-1", league: "AFC Champions League Two", date: "Thu, 26 Nov 2026", time: "00:00", iso: "2026-11-26T00:00:00+08:00", teams: "Al Jazira vs Gol Gohar", broadcasters: ["IRIB Varzesh"], hot: false },
@@ -377,28 +561,22 @@
       { id: "jl-10", league: "Jordan League", date: "Sat, 5 Dec 2026", time: "00:00", iso: "2026-12-05T00:00:00+08:00", teams: "Al Faisaly vs Al Wihdat", broadcasters: ["Jordan TV Sport"], hot: true },
       { id: "jl-11", league: "Jordan League", date: "Fri, 11 Dec 2026", time: "21:00", iso: "2026-12-11T21:00:00+08:00", teams: "Al Buqa’a vs Al Hussein", broadcasters: ["Jordan TV Sport"], hot: false },
       { id: "jl-12", league: "Jordan League", date: "Sat, 12 Dec 2026", time: "00:00", iso: "2026-12-12T00:00:00+08:00", teams: "Al Wihdat vs Al Salt", broadcasters: ["Jordan TV Sport"], hot: false },
-
-      // International Friendly
-      { id: "if-1", league: "International Friendly", date: "Sat, 14 Nov 2026", time: "16:00", iso: "2026-11-14T16:00:00+08:00", teams: "Thailand U23 vs Singapore U23", broadcasters: ["True Premier Football HD 4"], hot: false },
-      { id: "if-2", league: "International Friendly", date: "Tue, 17 Nov 2026", time: "02:00", iso: "2026-11-17T02:00:00+08:00", teams: "Andorra vs Azerbaijan", broadcasters: ["beIN Sports Arabia 9"], hot: false },
-      { id: "if-3", league: "International Friendly", date: "Wed, 18 Nov 2026", time: "00:00", iso: "2026-11-18T00:00:00+08:00", teams: "Jordan vs Australia", broadcasters: ["Jordan TV Sport"], hot: true },
-
-      // CONCACAF Nations League
-      { id: "cnl-1", league: "CONCACAF Nations League", date: "Fri, 13 Nov 2026", time: "06:00", iso: "2026-11-13T06:00:00+08:00", teams: "Aruba vs Martinique", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-2", league: "CONCACAF Nations League", date: "Fri, 13 Nov 2026", time: "08:30", iso: "2026-11-13T08:30:00+08:00", teams: "Curaçao vs Panama", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-3", league: "CONCACAF Nations League", date: "Sat, 14 Nov 2026", time: "07:00", iso: "2026-11-14T07:00:00+08:00", teams: "Saint Martin vs El Salvador", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-4", league: "CONCACAF Nations League", date: "Sat, 14 Nov 2026", time: "10:00", iso: "2026-11-14T10:00:00+08:00", teams: "Guatemala vs Canada", broadcasters: ["Fox Sports 2 USA"], hot: true },
-      { id: "cnl-5", league: "CONCACAF Nations League", date: "Sun, 15 Nov 2026", time: "05:30", iso: "2026-11-15T05:30:00+08:00", teams: "Haiti vs USA", broadcasters: ["Telemundo"], hot: true },
-      { id: "cnl-6", league: "CONCACAF Nations League", date: "Mon, 16 Nov 2026", time: "07:00", iso: "2026-11-16T07:00:00+08:00", teams: "Panama vs Curaçao", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-7", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "08:00", iso: "2026-11-17T08:00:00+08:00", teams: "Trinidad and Tobago vs Antigua and Barbuda", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-8", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "09:00", iso: "2026-11-17T09:00:00+08:00", teams: "Canada vs Guatemala", broadcasters: ["Fox Sports 1 USA"], hot: false },
-      { id: "cnl-9", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "08:00", iso: "2026-11-18T08:00:00+08:00", teams: "French Guiana vs Saint Vincent and the Grenadines", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "cnl-10", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "09:00", iso: "2026-11-18T09:00:00+08:00", teams: "El Salvador vs Saint Martin", broadcasters: ["Fox Sports 1 USA"], hot: false },
-      { id: "cnl-11", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "11:00", iso: "2026-11-18T11:00:00+08:00", teams: "Nicaragua vs Montserrat", broadcasters: ["Fox Sports 1 USA"], hot: false },
+      { id: "jl-13", league: "Jordan League", date: "Sat, 12 Dec 2026", time: "21:00", iso: "2026-12-12T21:00:00+08:00", teams: "Al Arabi vs Al Ramtha", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-14", league: "Jordan League", date: "Sun, 13 Dec 2026", time: "00:00", iso: "2026-12-13T00:00:00+08:00", teams: "Shabab Al Ordon vs Al Jazeera", broadcasters: ["Jordan TV Sport"], hot: false },
+      { id: "jl-15", league: "Jordan League", date: "Sun, 13 Dec 2026", time: "23:00", iso: "2026-12-13T23:00:00+08:00", teams: "Doqarah vs Al Faisaly", broadcasters: ["Jordan TV Sport"], hot: false },
 
       // Asian Cup Qualification
-      { id: "acq-1", league: "Asian Cup Qualification", date: "Wed, 13 Jan 2027", time: "22:00", iso: "2027-01-13T22:00:00+08:00", teams: "Jordan vs Bahrain", broadcasters: ["Bahrain Sport 1"], hot: false },
-      { id: "acq-2", league: "Asian Cup Qualification", date: "Mon, 18 Jan 2027", time: "22:00", iso: "2027-01-18T22:00:00+08:00", teams: "Uzbekistan vs Bahrain", broadcasters: ["Bahrain Sport 1"], hot: false },
+      { id: "acq-1", league: "Asian Cup Qualification", date: "Wed, 13 Jan 2027", time: "22:00", iso: "2027-01-13T22:00:00+08:00", teams: "Jordan vs Bahrain", broadcasters: ["Bahrain Riyadiya 1"], hot: true },
+      { id: "acq-2", league: "Asian Cup Qualification", date: "Mon, 18 Jan 2027", time: "22:00", iso: "2027-01-18T22:00:00+08:00", teams: "Uzbekistan vs Bahrain", broadcasters: ["Bahrain Riyadiya 1"], hot: true },
+
+      // CONCACAF Nations League
+      { id: "cnl-1", league: "CONCACAF Nations League", date: "Sun, 15 Nov 2026", time: "05:30", iso: "2026-11-15T05:30:00+08:00", teams: "Haiti vs USA", broadcasters: ["Telemundo"], hot: true },
+      { id: "cnl-2", league: "CONCACAF Nations League", date: "Mon, 16 Nov 2026", time: "07:00", iso: "2026-11-16T07:00:00+08:00", teams: "Panama vs Curaçao", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-3", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "08:00", iso: "2026-11-17T08:00:00+08:00", teams: "Trinidad and Tobago vs Antigua and Barbuda", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-4", league: "CONCACAF Nations League", date: "Tue, 17 Nov 2026", time: "09:00", iso: "2026-11-17T09:00:00+08:00", teams: "Canada vs Guatemala", broadcasters: ["Fox Sports 1 USA"], hot: true },
+      { id: "cnl-5", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "08:00", iso: "2026-11-18T08:00:00+08:00", teams: "French Guiana vs Saint Vincent and the Grenadines", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "cnl-6", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "09:00", iso: "2026-11-18T09:00:00+08:00", teams: "El Salvador vs Saint Martin", broadcasters: ["Fox Sports 1 USA"], hot: false },
+      { id: "cnl-7", league: "CONCACAF Nations League", date: "Wed, 18 Nov 2026", time: "11:00", iso: "2026-11-18T11:00:00+08:00", teams: "Nicaragua vs Montserrat", broadcasters: ["Fox Sports 1 USA"], hot: false },
 
       // FIFA U-17 World Cup
       { id: "u17-1", league: "FIFA U-17 World Cup", date: "Thu, 19 Nov 2026", time: "21:00", iso: "2026-11-19T21:00:00+08:00", teams: "France U17 vs Haiti U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
@@ -406,30 +584,68 @@
       { id: "u17-3", league: "FIFA U-17 World Cup", date: "Fri, 20 Nov 2026", time: "21:00", iso: "2026-11-20T21:00:00+08:00", teams: "Belgium U17 vs Vietnam U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
       { id: "u17-4", league: "FIFA U-17 World Cup", date: "Fri, 20 Nov 2026", time: "23:00", iso: "2026-11-20T23:00:00+08:00", teams: "Italy U17 vs Jamaica U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
       { id: "u17-5", league: "FIFA U-17 World Cup", date: "Sat, 21 Nov 2026", time: "20:30", iso: "2026-11-21T20:30:00+08:00", teams: "Japan U17 vs Colombia U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
-      { id: "u17-6", league: "FIFA U-17 World Cup", date: "Sat, 21 Nov 2026", time: "22:30", iso: "2026-11-21T22:30:00+08:00", teams: "United States U17 vs Montenegro U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-7", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "20:30", iso: "2026-11-22T20:30:00+08:00", teams: "Denmark U17 vs Australia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-8", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "22:30", iso: "2026-11-22T22:30:00+08:00", teams: "Korea Republic U17 vs New Caledonia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-9", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "20:30", iso: "2026-11-23T20:30:00+08:00", teams: "Spain U17 vs Fiji U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-10", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "22:30", iso: "2026-11-23T22:30:00+08:00", teams: "Italy U17 vs Côte d’Ivoire U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-6", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "20:30", iso: "2026-11-22T20:30:00+08:00", teams: "Denmark U17 vs Australia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-7", league: "FIFA U-17 World Cup", date: "Sun, 22 Nov 2026", time: "22:30", iso: "2026-11-22T22:30:00+08:00", teams: "Korea Republic U17 vs New Caledonia U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-8", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "20:30", iso: "2026-11-23T20:30:00+08:00", teams: "Spain U17 vs Fiji U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-9", league: "FIFA U-17 World Cup", date: "Mon, 23 Nov 2026", time: "22:30", iso: "2026-11-23T22:30:00+08:00", teams: "Italy U17 vs Côte d’Ivoire U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-10", league: "FIFA U-17 World Cup", date: "Tue, 24 Nov 2026", time: "Postp.", iso: "2026-11-24T20:00:00+08:00", teams: "United States U17 vs Chile U17", broadcasters: ["Fox Sports 2 USA"], hot: false, postponed: true },
       { id: "u17-11", league: "FIFA U-17 World Cup", date: "Tue, 24 Nov 2026", time: "20:30", iso: "2026-11-24T20:30:00+08:00", teams: "Costa Rica U17 vs Republic of Ireland U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-12", league: "FIFA U-17 World Cup", date: "Tue, 24 Nov 2026", time: "22:30", iso: "2026-11-24T22:30:00+08:00", teams: "United States U17 vs Chile U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-13", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "21:30", iso: "2026-11-25T21:30:00+08:00", teams: "Uruguay U17 vs France U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
-      { id: "u17-14", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "23:30", iso: "2026-11-25T23:30:00+08:00", teams: "Denmark U17 vs Argentina U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
-      { id: "u17-15", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "21:00", iso: "2026-11-26T21:00:00+08:00", teams: "New Zealand U17 vs Belgium U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-16", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "23:00", iso: "2026-11-26T23:00:00+08:00", teams: "Morocco U17 vs Spain U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
-      { id: "u17-17", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "21:00", iso: "2026-11-27T21:00:00+08:00", teams: "Honduras U17 vs Japan U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
-      { id: "u17-18", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "23:00", iso: "2026-11-27T23:00:00+08:00", teams: "Algeria U17 vs United States U17", broadcasters: ["Fox Sports 2 USA"], hot: false }
+      { id: "u17-12", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "21:30", iso: "2026-11-25T21:30:00+08:00", teams: "Uruguay U17 vs France U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-13", league: "FIFA U-17 World Cup", date: "Wed, 25 Nov 2026", time: "23:30", iso: "2026-11-25T23:30:00+08:00", teams: "Denmark U17 vs Argentina U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-14", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "21:00", iso: "2026-11-26T21:00:00+08:00", teams: "New Zealand U17 vs Belgium U17", broadcasters: ["Fox Sports 2 USA"], hot: false },
+      { id: "u17-15", league: "FIFA U-17 World Cup", date: "Thu, 26 Nov 2026", time: "23:00", iso: "2026-11-26T23:00:00+08:00", teams: "Morocco U17 vs Spain U17", broadcasters: ["Fox Sports 2 USA"], hot: true },
+      { id: "u17-16", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "Postp.", iso: "2026-11-27T20:00:00+08:00", teams: "Algeria U17 vs United States U17", broadcasters: ["Fox Sports 2 USA"], hot: false, postponed: true },
+      { id: "u17-17", league: "FIFA U-17 World Cup", date: "Fri, 27 Nov 2026", time: "21:00", iso: "2026-11-27T21:00:00+08:00", teams: "Honduras U17 vs Japan U17", broadcasters: ["Fox Sports 2 USA"], hot: false }
     ];
 
     let selectedLeague = 'ALL';
     let selectedDate = 'ALL';
     let hotOnly = false;
+    let savedOnly = false;
     let savedReminders = JSON.parse(localStorage.getItem('fx_reminders') || '[]');
     let activeHighlightTarget = null;
     let countdownInterval = null;
 
-    // App Initialization
+    // =========================================================================
+    // 1. PRELOADER BOOT ANIMATION SEQUENCE
+    // =========================================================================
+    function runPreloaderSequence() {
+      const preloader = document.getElementById('preloader');
+      const bar = document.getElementById('loaderProgressBar');
+      const percentText = document.getElementById('loaderPercent');
+      const statusText = document.getElementById('loaderStatusText');
+
+      const stages = [
+        { pct: 25, msg: "Connecting to Global Satellite Feeds..." },
+        { pct: 55, msg: "Loading 15 International Competitions..." },
+        { pct: 85, msg: "Calibrating MYT (UTC+8) Live Clocks..." },
+        { pct: 100, msg: "Stadium Telemetry Ready!" }
+      ];
+
+      let step = 0;
+      const interval = setInterval(() => {
+        if (step < stages.length) {
+          bar.style.width = stages[step].pct + "%";
+          percentText.innerText = stages[step].pct + "%";
+          statusText.innerText = stages[step].msg;
+          step++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            preloader.classList.add('loaded');
+            setTimeout(() => {
+              preloader.style.display = 'none';
+            }, 600);
+          }, 200);
+        }
+      }, 220);
+    }
+
+    // =========================================================================
+    // 2. CORE APPLICATION LOGIC (ZERO-LAG)
+    // =========================================================================
     function initApp() {
+      runPreloaderSequence();
       updateStatsBar();
       setupDateFilterPills();
       setupLeagueFilterTabs();
@@ -454,7 +670,7 @@
         showToast("Reminder removed from watchlist");
       } else {
         savedReminders.push(matchId);
-        showToast("Match added to your reminders!");
+        showToast("Match added to your watchlist!");
       }
       localStorage.setItem('fx_reminders', JSON.stringify(savedReminders));
       updateStatsBar();
@@ -467,9 +683,9 @@
       if (!match) return;
       activeHighlightTarget = match;
       updateHighlightUI(match);
-      startCountdownTimer(match.iso);
+      startCountdownTimer(match.iso, match.postponed);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast(`Pinned: ${match.teams}`);
+      showToast(`Spotlight Pinned: ${match.teams}`);
     }
 
     // Toast Helper
@@ -489,10 +705,24 @@
       const btn = document.getElementById('hotOnlyBtn');
       if (hotOnly) {
         btn.classList.remove('bg-slate-900', 'border-slate-700', 'text-slate-300');
-        btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400');
+        btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400', 'shadow-lg', 'shadow-red-500/15');
       } else {
         btn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
-        btn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400');
+        btn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400', 'shadow-lg', 'shadow-red-500/15');
+      }
+      applyFilters();
+    }
+
+    // Toggle Saved Watchlist Filter
+    function toggleSavedFilter() {
+      savedOnly = !savedOnly;
+      const btn = document.getElementById('savedOnlyBtn');
+      if (savedOnly) {
+        btn.classList.remove('bg-slate-900', 'border-slate-700', 'text-slate-300');
+        btn.classList.add('bg-amber-500/20', 'border-amber-500', 'text-amber-400', 'shadow-lg', 'shadow-amber-500/15');
+      } else {
+        btn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
+        btn.classList.remove('bg-amber-500/20', 'border-amber-500', 'text-amber-400', 'shadow-lg', 'shadow-amber-500/15');
       }
       applyFilters();
     }
@@ -502,11 +732,16 @@
       selectedLeague = 'ALL';
       selectedDate = 'ALL';
       hotOnly = false;
+      savedOnly = false;
       document.getElementById('searchInput').value = '';
       
       const hotBtn = document.getElementById('hotOnlyBtn');
       hotBtn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
-      hotBtn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400');
+      hotBtn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400', 'shadow-lg', 'shadow-red-500/15');
+
+      const savedBtn = document.getElementById('savedOnlyBtn');
+      savedBtn.classList.add('bg-slate-900', 'border-slate-700', 'text-slate-300');
+      savedBtn.classList.remove('bg-amber-500/20', 'border-amber-500', 'text-amber-400', 'shadow-lg', 'shadow-amber-500/15');
 
       setupDateFilterPills();
       const leagueTabsContainer = document.getElementById('leagueFilterTabs');
@@ -519,22 +754,24 @@
       renderSchedules();
     }
 
-    // Automatic Highlight Picker based on Current Time & Date Schedule
+    // Automatic Highlight Picker
     function autoSelectDayHighlight() {
       const now = new Date().getTime();
-      const sorted = [...rawMatches].sort((a, b) => new Date(a.iso) - new Date(b.iso));
+      const sorted = [...rawMatches]
+        .filter(m => !m.postponed)
+        .sort((a, b) => new Date(a.iso) - new Date(b.iso));
 
       let match = sorted.find(m => new Date(m.iso).getTime() > now && m.hot);
       if (!match) {
         match = sorted.find(m => new Date(m.iso).getTime() > now);
       }
       if (!match) {
-        match = sorted[sorted.length - 1];
+        match = sorted[0];
       }
 
       activeHighlightTarget = match;
       updateHighlightUI(match);
-      startCountdownTimer(match.iso);
+      startCountdownTimer(match.iso, match.postponed);
     }
 
     // Populate Highlight Banner Elements
@@ -546,15 +783,23 @@
 
       const channelsContainer = document.getElementById('highlightChannels');
       channelsContainer.innerHTML = match.broadcasters.map(b => `
-        <span class="px-3 py-1 bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold rounded-lg flex items-center gap-1.5">
+        <span class="px-3 py-1 bg-slate-800/90 border border-slate-700 text-cyan-300 text-xs font-bold rounded-lg flex items-center gap-1.5">
           <i class="fa-solid fa-satellite-dish text-cyan-400"></i> ${b}
         </span>
       `).join('');
     }
 
     // Dynamic Live Countdown Engine
-    function startCountdownTimer(targetIso) {
+    function startCountdownTimer(targetIso, isPostponed = false) {
       if (countdownInterval) clearInterval(countdownInterval);
+
+      if (isPostponed) {
+        document.getElementById('cd-days').innerText = "--";
+        document.getElementById('cd-hours').innerText = "--";
+        document.getElementById('cd-mins').innerText = "--";
+        document.getElementById('cd-secs').innerText = "--";
+        return;
+      }
 
       const targetTime = new Date(targetIso).getTime();
 
@@ -593,7 +838,7 @@
       container.innerHTML = dates.map((d, index) => `
         <button 
           onclick="selectDate('${d}', this)"
-          class="date-pill px-3.5 py-1.5 rounded-lg border text-xs font-bold whitespace-nowrap transition ${index === 0 ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'}"
+          class="date-pill px-3.5 py-1.5 rounded-lg border text-xs font-bold whitespace-nowrap transition ${index === 0 ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-sm shadow-cyan-500/20' : 'bg-slate-900/90 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-white'}"
         >
           <i class="fa-regular fa-calendar mr-1"></i> ${d === 'ALL' ? 'ALL DATES' : d}
         </button>
@@ -608,7 +853,7 @@
       leagues.forEach(league => {
         const btn = document.createElement('button');
         btn.onclick = () => selectLeague(league, btn);
-        btn.className = "league-tab px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold hover:border-slate-700 hover:text-white whitespace-nowrap transition";
+        btn.className = "league-tab px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 font-bold hover:border-slate-700 hover:text-white whitespace-nowrap transition";
         btn.innerHTML = `<i class="fa-solid fa-trophy text-cyan-400 mr-1.5"></i> ${league.toUpperCase()}`;
         container.appendChild(btn);
       });
@@ -618,11 +863,11 @@
     function selectDate(dateVal, el) {
       selectedDate = dateVal;
       document.querySelectorAll('.date-pill').forEach(btn => {
-        btn.classList.remove('bg-cyan-500/20', 'border-cyan-400', 'text-cyan-300');
-        btn.classList.add('bg-slate-900', 'border-slate-800', 'text-slate-400');
+        btn.classList.remove('bg-cyan-500/20', 'border-cyan-400', 'text-cyan-300', 'shadow-sm', 'shadow-cyan-500/20');
+        btn.classList.add('bg-slate-900/90', 'border-slate-800', 'text-slate-400');
       });
-      el.classList.remove('bg-slate-900', 'border-slate-800', 'text-slate-400');
-      el.classList.add('bg-cyan-500/20', 'border-cyan-400', 'text-cyan-300');
+      el.classList.remove('bg-slate-900/90', 'border-slate-800', 'text-slate-400');
+      el.classList.add('bg-cyan-500/20', 'border-cyan-400', 'text-cyan-300', 'shadow-sm', 'shadow-cyan-500/20');
 
       applyFilters();
     }
@@ -633,10 +878,10 @@
       const tabs = document.querySelectorAll('.league-tab');
       tabs.forEach(tab => {
         tab.classList.remove('bg-cyan-500', 'text-slate-950', 'font-black', 'shadow-lg', 'shadow-cyan-500/20');
-        tab.classList.add('bg-slate-900', 'text-slate-300', 'border', 'border-slate-800');
+        tab.classList.add('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
       });
 
-      el.classList.remove('bg-slate-900', 'text-slate-300', 'border', 'border-slate-800');
+      el.classList.remove('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
       el.classList.add('bg-cyan-500', 'text-slate-950', 'font-black', 'shadow-lg', 'shadow-cyan-500/20');
 
       applyFilters();
@@ -670,11 +915,12 @@
         const matches = grouped[league].filter(m => {
           const matchDateFilter = selectedDate === 'ALL' || m.date === selectedDate;
           const hotFilter = !hotOnly || m.hot;
+          const savedFilter = !savedOnly || savedReminders.includes(m.id);
           const searchMatch = m.teams.toLowerCase().includes(searchVal) ||
                               m.league.toLowerCase().includes(searchVal) ||
                               m.broadcasters.some(b => b.toLowerCase().includes(searchVal)) ||
                               m.date.toLowerCase().includes(searchVal);
-          return matchDateFilter && hotFilter && searchMatch;
+          return matchDateFilter && hotFilter && savedFilter && searchMatch;
         });
 
         if (matches.length === 0) return;
@@ -689,18 +935,18 @@
 
         // Bezel Card Markup
         const bezelCard = document.createElement('div');
-        bezelCard.className = "bezel-container overflow-hidden transition hover:border-slate-600";
+        bezelCard.className = "bezel-container transition hover:border-slate-600";
 
         let html = `
           <!-- Large Bezel Header for League -->
           <div class="bezel-header px-6 py-4 flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <span class="w-3 h-8 bg-cyan-400 rounded-full inline-block"></span>
-              <h2 class="text-2xl sm:text-3xl font-black font-display tracking-wide text-white uppercase">
+              <span class="w-3 h-8 bg-gradient-to-b from-cyan-400 to-emerald-400 rounded-full inline-block shadow-[0_0_10px_rgba(0,242,254,0.5)]"></span>
+              <h2 class="text-xl sm:text-3xl font-black font-display tracking-wide text-white uppercase">
                 ${league}
               </h2>
             </div>
-            <span class="px-3 py-1 bg-slate-950/70 rounded-full border border-slate-700 text-xs font-bold text-slate-300">
+            <span class="px-3.5 py-1 bg-slate-950/80 rounded-full border border-slate-700 text-xs font-bold text-cyan-300">
               ${matches.length} ${matches.length === 1 ? 'Match' : 'Matches'}
             </span>
           </div>
@@ -712,7 +958,7 @@
           html += `
             <div>
               <!-- Date Label Header -->
-              <div class="flex items-center gap-2 mb-3 pb-1 border-b border-slate-800 text-slate-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
+              <div class="flex items-center gap-2 mb-3 pb-1.5 border-b border-slate-800/90 text-slate-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
                 <i class="fa-regular fa-calendar-days text-cyan-400"></i>
                 <span>${dateStr}</span>
               </div>
@@ -724,46 +970,51 @@
             const isMultiple = match.broadcasters.length > 1;
             const matchTime = new Date(match.iso).getTime();
             const isSaved = savedReminders.includes(match.id);
+            const isPostponed = match.postponed || match.time.toLowerCase().includes('postp');
             
             // Match Status Badge Logic
             let statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">UPCOMING</span>';
-            if (matchTime <= now && now <= matchTime + (120 * 60 * 1000)) {
+            if (isPostponed) {
+              statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/40">POSTPONED</span>';
+            } else if (matchTime <= now && now <= matchTime + (120 * 60 * 1000)) {
               statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500 text-slate-950 animate-pulse">LIVE NOW</span>';
             } else if (now > matchTime + (120 * 60 * 1000)) {
-              statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-900 text-slate-500">ENDED</span>';
+              statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-900 text-slate-500 border border-slate-800">ENDED</span>';
             }
 
             html += `
-              <div class="bg-slate-900/90 rounded-xl p-3 sm:p-4 border ${match.hot ? 'border-red-500/50 bg-red-950/10' : 'border-slate-800'} flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:border-slate-700 transition">
+              <div class="match-card bg-slate-900/90 rounded-xl p-3.5 sm:p-4 border ${match.hot ? 'border-red-500/50 bg-red-950/10' : isPostponed ? 'border-amber-500/30 opacity-85' : 'border-slate-800'} flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 
                 <!-- Match Details -->
                 <div class="flex items-start sm:items-center gap-3 sm:gap-4 flex-1">
                   <!-- Time Badge (MYT Timezone) -->
-                  <div class="flex flex-col items-center justify-center bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 min-w-[75px]">
-                    <span class="text-[10px] text-slate-400 font-bold uppercase">MYT</span>
-                    <span class="text-lg font-black text-cyan-400 font-display">${match.time}</span>
+                  <div class="flex flex-col items-center justify-center bg-slate-950 border ${isPostponed ? 'border-amber-500/40' : 'border-slate-800'} rounded-lg px-3 py-2 min-w-[78px]">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">${isPostponed ? 'STATUS' : 'MYT'}</span>
+                    <span class="text-lg font-black ${isPostponed ? 'text-amber-400' : 'text-cyan-400'} font-display">${match.time}</span>
                   </div>
 
                   <!-- Teams & Status -->
-                  <div class="space-y-1 flex-1">
+                  <div class="space-y-1.5 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
-                      <span class="text-base sm:text-lg font-bold text-white">
+                      <span class="text-base sm:text-lg font-bold text-white tracking-tight">
                         ${match.teams}
                       </span>
                       ${match.hot ? `
-                        <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-red-500 text-white animate-pulse">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-red-500 text-white animate-pulse shadow-sm shadow-red-500/40">
                           HOT MATCH
                         </span>
                       ` : ''}
                       ${statusBadge}
                     </div>
-                    <div class="flex items-center gap-3 flex-wrap text-xs text-slate-400">
+                    <div class="flex items-center gap-3.5 flex-wrap text-xs text-slate-400">
                       <span><i class="fa-solid fa-earth-asia text-slate-500 mr-1"></i> MYT (UTC+8)</span>
-                      <button onclick="pinToHighlight('${match.id}')" class="text-cyan-400 hover:text-cyan-300 font-semibold transition flex items-center gap-1">
-                        <i class="fa-solid fa-stopwatch"></i> Countdown
-                      </button>
+                      ${!isPostponed ? `
+                        <button onclick="pinToHighlight('${match.id}')" class="text-cyan-400 hover:text-cyan-300 font-semibold transition flex items-center gap-1">
+                          <i class="fa-solid fa-stopwatch"></i> Spotlight
+                        </button>
+                      ` : ''}
                       <button onclick="toggleReminder('${match.id}', event)" class="${isSaved ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-amber-300'} transition flex items-center gap-1">
-                        <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bell"></i> ${isSaved ? 'Reminded' : 'Remind Me'}
+                        <i class="${isSaved ? 'fa-solid' : 'fa-regular'} fa-bell"></i> ${isSaved ? 'Watchlisted' : 'Remind Me'}
                       </button>
                     </div>
                   </div>
@@ -772,7 +1023,7 @@
                 <!-- Broadcaster Channels (Single vs Scrolling Carousel) -->
                 <div class="w-full lg:w-80 flex flex-col items-start lg:items-end">
                   <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1">
-                    <i class="fa-solid fa-satellite-dish"></i> Broadcasters ${isMultiple ? '(Scroll ➔)' : ''}
+                    <i class="fa-solid fa-satellite-dish text-cyan-500/70"></i> Broadcasters ${isMultiple ? '(Scroll ➔)' : ''}
                   </span>
 
                   ${isMultiple ? `
@@ -780,7 +1031,7 @@
                     <div class="w-full scroll-mask">
                       <div class="broadcaster-scroll w-full py-1">
                         ${match.broadcasters.map(b => `
-                          <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/50 text-cyan-300 font-bold text-xs whitespace-nowrap shadow-sm">
+                          <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-cyan-950/85 border border-cyan-500/50 text-cyan-300 font-bold text-xs whitespace-nowrap shadow-sm">
                             <i class="fa-solid fa-tv text-cyan-400 mr-1.5 text-xs"></i>
                             ${b}
                           </span>
@@ -789,7 +1040,7 @@
                     </div>
                   ` : `
                     <!-- Single Channel Badge -->
-                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200 font-bold text-sm shadow-sm">
+                    <span class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700/90 text-slate-200 font-bold text-sm shadow-sm">
                       <i class="fa-solid fa-tv text-cyan-400 mr-2 text-xs"></i>
                       ${match.broadcasters[0]}
                     </span>
